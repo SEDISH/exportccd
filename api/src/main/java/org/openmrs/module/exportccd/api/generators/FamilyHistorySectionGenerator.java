@@ -1,5 +1,6 @@
 package org.openmrs.module.exportccd.api.generators;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openhealthtools.mdht.uml.cda.CDAFactory;
 import org.openhealthtools.mdht.uml.cda.Component4;
 import org.openhealthtools.mdht.uml.cda.Entry;
@@ -161,7 +162,9 @@ public class FamilyHistorySectionGenerator {
 			statusCode2.setCode("completed");
 			ob.setStatusCode(statusCode2);
 			INT age1 = DatatypesFactory.eINSTANCE.createINT();
-			age1.setValue((int) Float.parseFloat(age));
+			if (StringUtils.isNotEmpty(age)) {
+				age1.setValue((int) Float.parseFloat(age));
+			}
 			ob.getValues().add(age1);
 			e.setObservation(ob);
 			co.getEntryRelationships().add(e);

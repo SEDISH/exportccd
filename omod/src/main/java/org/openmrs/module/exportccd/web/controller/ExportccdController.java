@@ -9,6 +9,8 @@
  */
 package org.openmrs.module.exportccd.web.controller;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
 import org.openmrs.module.exportccd.api.PatientSummaryExportService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +27,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping(value = "/rest/exportccd/", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ExportccdController {
 	
+	private final Log LOG = LogFactory.getLog(this.getClass());
+	
+	private final String NEW_LINE = "</br>";
+	
 	@Autowired
 	PatientSummaryExportService patientSummaryExportService;
 	
 	@ResponseBody
-	@RequestMapping(value = "/ccd/{patientId}", method = RequestMethod.GET)
-	public ResponseEntity<String> getCCD(@PathVariable int patientId) {
-		ContinuityOfCareDocument ccd = patientSummaryExportService.produceCCD(patientId);
+	@RequestMapping(value = "/ccd/{patientECID}", method = RequestMethod.GET)
+	public ResponseEntity<String> getCCD(@PathVariable String patientECID) {
+		ContinuityOfCareDocument ccd = patientSummaryExportService.produceCCD(patientECID);
 
 		String response = wrapSectionsToString(ccd);
 
@@ -42,22 +48,57 @@ public class ExportccdController {
 		
 		String response = "";
 		
-		response += ccd.getProblemSection() != null ? ccd.getProblemSection().getText().getText() : "";
-		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getText().getText() : "";
-		response += ccd.getSocialHistorySection() != null ? ccd.getSocialHistorySection().getText().getText() : "";
-		response += ccd.getAlertsSection() != null ? ccd.getAlertsSection().getText().getText() : "";
-		response += ccd.getMedicationsSection() != null ? ccd.getMedicationsSection().getText().getText() : "";
-		response += ccd.getResultsSection() != null ? ccd.getResultsSection().getText().getText() : "";
-		response += ccd.getProceduresSection() != null ? ccd.getProceduresSection().getText().getText() : "";
-		response += ccd.getEncountersSection() != null ? ccd.getEncountersSection().getText().getText() : "";
-		response += ccd.getPlanOfCareSection() != null ? ccd.getPlanOfCareSection().getText().getText() : "";
-		response += ccd.getImmunizationsSection() != null ? ccd.getImmunizationsSection().getText().getText() : "";
-		response += ccd.getVitalSignsSection() != null ? ccd.getVitalSignsSection().getText().getText() : "";
-		response += ccd.getMedicalEquipmentSection() != null ? ccd.getMedicalEquipmentSection().getText().getText() : "";
-		response += ccd.getFunctionalStatusSection() != null ? ccd.getFunctionalStatusSection().getText().getText() : "";
-		response += ccd.getAdvanceDirectivesSection() != null ? ccd.getAdvanceDirectivesSection().getText().getText() : "";
-		response += ccd.getPayersSection() != null ? ccd.getPayersSection().getText().getText() : "";
-		response += ccd.getPurposeSection() != null ? ccd.getPurposeSection().getText().getText() : "";
+		response += ccd.getProblemSection() != null ? ccd.getProblemSection().getTitle().getText() : "";
+		response += ccd.getProblemSection() != null ? ccd.getProblemSection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getTitle().getText() + NEW_LINE : "";
+		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getSocialHistorySection() != null ? ccd.getSocialHistorySection().getTitle().getText() : "";
+		response += ccd.getSocialHistorySection() != null ? ccd.getSocialHistorySection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getAlertsSection() != null ? ccd.getAlertsSection().getTitle().getText() : "";
+		response += ccd.getAlertsSection() != null ? ccd.getAlertsSection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getMedicationsSection() != null ? ccd.getMedicationsSection().getTitle().getText() : "";
+		response += ccd.getMedicationsSection() != null ? ccd.getMedicationsSection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getResultsSection() != null ? ccd.getResultsSection().getTitle().getText() : "";
+		response += ccd.getResultsSection() != null ? ccd.getResultsSection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getProceduresSection() != null ? ccd.getProceduresSection().getTitle().getText() : "";
+		response += ccd.getProceduresSection() != null ? ccd.getProceduresSection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getEncountersSection() != null ? ccd.getEncountersSection().getTitle().getText() : "";
+		response += ccd.getEncountersSection() != null ? ccd.getEncountersSection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getPlanOfCareSection() != null ? ccd.getPlanOfCareSection().getTitle().getText() : "";
+		response += ccd.getPlanOfCareSection() != null ? ccd.getPlanOfCareSection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getImmunizationsSection() != null ? ccd.getImmunizationsSection().getTitle().getText() : "";
+		response += ccd.getImmunizationsSection() != null ? ccd.getImmunizationsSection().getText().getText() + NEW_LINE
+		        : "";
+		
+		response += ccd.getVitalSignsSection() != null ? ccd.getVitalSignsSection().getTitle().getText() : "";
+		response += ccd.getVitalSignsSection() != null ? ccd.getVitalSignsSection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getMedicalEquipmentSection() != null ? ccd.getMedicalEquipmentSection().getTitle().getText() : "";
+		response += ccd.getMedicalEquipmentSection() != null ? ccd.getMedicalEquipmentSection().getText().getText()
+		        + NEW_LINE : "";
+		
+		response += ccd.getFunctionalStatusSection() != null ? ccd.getFunctionalStatusSection().getTitle().getText() : "";
+		response += ccd.getFunctionalStatusSection() != null ? ccd.getFunctionalStatusSection().getText().getText()
+		        + NEW_LINE : "";
+		
+		response += ccd.getAdvanceDirectivesSection() != null ? ccd.getAdvanceDirectivesSection().getTitle().getText() : "";
+		response += ccd.getAdvanceDirectivesSection() != null ? ccd.getAdvanceDirectivesSection().getText().getText()
+		        + NEW_LINE : "";
+		
+		response += ccd.getPayersSection() != null ? ccd.getPayersSection().getTitle().getText() : "";
+		response += ccd.getPayersSection() != null ? ccd.getPayersSection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getPurposeSection() != null ? ccd.getPurposeSection().getTitle().getText() : "";
+		response += ccd.getPurposeSection() != null ? ccd.getPurposeSection().getText().getText() + NEW_LINE : "";
 		
 		return response;
 	}

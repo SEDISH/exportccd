@@ -80,7 +80,9 @@ public class LabResultsSectionGenerator {
 		buffer.append("<thead>");
 		buffer.append("<tr>");
 		buffer.append("<th>Date</th>");
-		List<Concept> labResultsList = dao.getConceptByCategory("LabResults");
+		List<Concept> labResultsList = new ArrayList<Concept>();
+		//dao.getConceptByCategory("LabResults");1361
+		labResultsList.add(Context.getConceptService().getConcept(160593));
 		List<Obs> listOfObservations = new ArrayList();
 		Map<String, String> labResultData = new HashMap();
 		List<Concept> observedConceptList = new ArrayList();
@@ -115,7 +117,7 @@ public class LabResultsSectionGenerator {
 				Date dateCreated = obs.getObsDatetime();
 				dateSet.add(dateCreated);
 				if (labResultData.containsKey(dateCreated)) {
-					String data = (String) labResultData.get(dateCreated);
+					String data = labResultData.get(dateCreated);
 					data = data + "," + obs.getId();
 					labResultData.put(dateCreated + obs.getConcept().getId().toString(), data);
 				} else {
@@ -146,19 +148,23 @@ public class LabResultsSectionGenerator {
 				while (ii$.hasNext()) {
 					Date date = (Date) ii$.next();
 					if (labResultData.containsKey(date + "" + concept)) {
-						String obsId = (String) labResultData.get(date + "" + concept);
+						String obsId = labResultData.get(date + "" + concept);
 						Obs obs = Context.getObsService().getObs(Integer.parseInt(obsId));
 						int type = obs.getConcept().getDatatype().getId().intValue();
 						ConceptNumeric c = Context.getConceptService().getConceptNumeric(concept.getId());
+						String units = "";
+						if (c != null && c.getUnits() != null) {
+							units = c.getUnits();
+						}
 						switch (type) {
 							case 1:
-								buffer.append("<td>" + obs.getValueNumeric() + c.getUnits() + "</td>");
+								buffer.append("<td>" + obs.getValueNumeric() + units + "</td>");
 								break;
 							case 2:
-								buffer.append("<td>" + obs.getValueCoded().getDisplayString() + c.getUnits() + "</td>");
+								buffer.append("<td>" + obs.getValueCoded().getDisplayString() + units + "</td>");
 								break;
 							case 3:
-								buffer.append("<td>" + obs.getValueText() + c.getUnits() + "</td>");
+								buffer.append("<td>" + obs.getValueText() + units + "</td>");
 							case 4:
 							case 5:
 							case 9:
@@ -170,16 +176,16 @@ public class LabResultsSectionGenerator {
 								buffer.append("<td>" + utils.format(obs.getValueDate()) + "</td>");
 								break;
 							case 7:
-								buffer.append("<td>" + obs.getValueTime() + c.getUnits() + "</td>");
+								buffer.append("<td>" + obs.getValueTime() + units + "</td>");
 								break;
 							case 8:
 								buffer.append("<td>" + utils.format(obs.getValueDatetime()) + "</td>");
 								break;
 							case 10:
-								buffer.append("<td>" + obs.getValueBoolean() + c.getUnits() + "</td>");
+								buffer.append("<td>" + obs.getValueBoolean() + units + "</td>");
 								break;
 							case 13:
-								buffer.append("<td>" + obs.getValueComplex() + c.getUnits() + "</td>");
+								buffer.append("<td>" + obs.getValueComplex() + units + "</td>");
 						}
 						
 						Entry labResultEntry = CDAFactory.eINSTANCE.createEntry();
@@ -212,7 +218,7 @@ public class LabResultsSectionGenerator {
 						observation.setStatusCode(statusCode1);
 						observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), (Date) null));
 						PQ unit = DatatypesFactory.eINSTANCE.createPQ();
-						unit.setUnit(c.getUnits());
+						unit.setUnit(units);
 						unit.setValue(obs.getValueNumeric());
 						observation.getValues().add(unit);
 						ReferenceRange conceptRange = CDAFactory.eINSTANCE.createReferenceRange();
