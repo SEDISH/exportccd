@@ -9,6 +9,9 @@ import org.openhealthtools.mdht.uml.cda.ccd.CCDFactory;
 import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
+import org.openmrs.PatientIdentifierType;
+import org.openmrs.api.AdministrationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
@@ -25,8 +28,13 @@ import org.openmrs.module.exportccd.api.generators.VitalSignsSectionGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class PatientSummaryExportServiceImpl extends BaseOpenmrsService implements PatientSummaryExportService {
+	
+	private static final String ECID_NAME = "ECID";
 	
 	@Autowired
 	private AllergySectionGenerator allergySectionGenerator;
@@ -58,10 +66,13 @@ public class PatientSummaryExportServiceImpl extends BaseOpenmrsService implemen
 	public PatientSummaryExportServiceImpl() {
 	}
 	
-	public ContinuityOfCareDocument produceCCD(int patientId) {
+	public ContinuityOfCareDocument produceCCD(String patientECID) {
 		ContinuityOfCareDocument ccd = CCDFactory.eINSTANCE.createContinuityOfCareDocument();
 		PatientService patientService = Context.getPatientService();
-		Patient patient = patientService.getPatient(patientId);
+		AdministrationService administrationService = Context.getAdministrationService();
+		List<PatientIdentifierType> identifierTypes = new ArrayList<PatientIdentifierType>();
+		identifierTypes.add(patientService.getPatientIdentifierTypeByName(ECID_NAME));
+		Patient patient = patientService.getPatients(null, patientECID, identifierTypes, false).get(0);
 		System.out.println(patient);
 		ccd = headerGenerator.buildHeader(ccd, patient);
 		ccd = allergySectionGenerator.buildAllergies(ccd, patient);

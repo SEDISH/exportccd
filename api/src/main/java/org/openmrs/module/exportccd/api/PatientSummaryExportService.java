@@ -12,5 +12,5 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface PatientSummaryExportService extends OpenmrsService {
 	
-	ContinuityOfCareDocument produceCCD(int var1);
+	ContinuityOfCareDocument produceCCD(String patientECID);
 }
