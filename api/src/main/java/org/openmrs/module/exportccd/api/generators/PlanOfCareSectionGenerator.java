@@ -64,7 +64,7 @@ public class PlanOfCareSectionGenerator {
 		while (true) {
 			while (i$.hasNext()) {
 				Concept concept = (Concept) i$.next();
-				if (concept.isSet().booleanValue()) {
+				if (concept.isSet()) {
 					List<Concept> conceptSet = concept.getSetMembers();
 					Iterator ii$ = conceptSet.iterator();
 					
@@ -88,7 +88,7 @@ public class PlanOfCareSectionGenerator {
 				buffer.append("<tr>");
 				buffer.append("<td><content id = \"" + obs.getConcept().getDisplayString() + "\">"
 				        + obs.getConcept().getDisplayString() + "</content></td>");
-				int type = obs.getConcept().getDatatype().getId().intValue();
+				int type = obs.getConcept().getDatatype().getId();
 				switch (type) {
 					case 1:
 						buffer.append("<td>" + obs.getValueNumeric() + "</td>");

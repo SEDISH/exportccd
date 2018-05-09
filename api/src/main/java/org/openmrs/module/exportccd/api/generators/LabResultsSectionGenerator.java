@@ -93,7 +93,7 @@ public class LabResultsSectionGenerator {
 			Concept concept;
 			while (i$.hasNext()) {
 				concept = (Concept) i$.next();
-				if (concept.isSet().booleanValue()) {
+				if (concept.isSet()) {
 					List<Concept> conceptSet = concept.getSetMembers();
 					System.out.println(conceptSet);
 					Iterator ii$ = conceptSet.iterator();
@@ -150,7 +150,7 @@ public class LabResultsSectionGenerator {
 					if (labResultData.containsKey(date + "" + concept)) {
 						String obsId = labResultData.get(date + "" + concept);
 						Obs obs = Context.getObsService().getObs(Integer.parseInt(obsId));
-						int type = obs.getConcept().getDatatype().getId().intValue();
+						int type = obs.getConcept().getDatatype().getId();
 						ConceptNumeric c = Context.getConceptService().getConceptNumeric(concept.getId());
 						String units = "";
 						if (c != null && c.getUnits() != null) {
@@ -200,7 +200,7 @@ public class LabResultsSectionGenerator {
 						CS statusCode = DatatypesFactory.eINSTANCE.createCS();
 						statusCode.setCode("completed");
 						organizer.setStatusCode(statusCode);
-						organizer.setEffectiveTime(utils.buildEffectiveTimeinIVL(date, (Date) null));
+						organizer.setEffectiveTime(utils.buildEffectiveTimeinIVL(date, null));
 						Component4 component = CDAFactory.eINSTANCE.createComponent4();
 						Observation observation = CDAFactory.eINSTANCE.createObservation();
 						observation.setClassCode(ActClassObservation.OBS);
@@ -216,7 +216,7 @@ public class LabResultsSectionGenerator {
 						CS statusCode1 = DatatypesFactory.eINSTANCE.createCS();
 						statusCode1.setCode("completed");
 						observation.setStatusCode(statusCode1);
-						observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), (Date) null));
+						observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), null));
 						PQ unit = DatatypesFactory.eINSTANCE.createPQ();
 						unit.setUnit(units);
 						unit.setValue(obs.getValueNumeric());

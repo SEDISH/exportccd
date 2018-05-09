@@ -81,12 +81,12 @@ public class ProblemsSectionGenerator {
 			problemAct.setMoodCode(x_DocumentActMood.EVN);
 			problemEntry.setAct(problemAct);
 			problemAct.getTemplateIds().add(
-			    utils.buildTemplateID("2.16.840.1.113883.3.88.11.83.7", (String) null, "HITSP C83"));
-			problemAct.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.27", (String) null, "CCD"));
+			    utils.buildTemplateID("2.16.840.1.113883.3.88.11.83.7", null, "HITSP C83"));
+			problemAct.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.27", null, "CCD"));
 			problemAct.getTemplateIds().add(
-			    utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.5.2", (String) null, "IHE PCC"));
+			    utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.5.2", null, "IHE PCC"));
 			problemAct.getTemplateIds().add(
-			    utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.5.1", (String) null, "IHE PCC"));
+			    utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.5.1", null, "IHE PCC"));
 			problemAct.getIds().add(utils.buildID(patientProblem.getUuid(), ""));
 			problemSection.getEntries().add(problemEntry);
 			problemAct.setEffectiveTime(utils.buildEffectiveTimeinIVL(patientProblem.getStartDate(),
@@ -104,9 +104,9 @@ public class ProblemsSectionGenerator {
 			problemObservation.setClassCode(ActClassObservation.OBS);
 			problemObservation.setMoodCode(x_ActMoodDocumentObservation.EVN);
 			problemObservation.getTemplateIds().add(
-			    utils.buildTemplateID("2.16.840.1.113883.10.20.1.28", (String) null, "CCD"));
+			    utils.buildTemplateID("2.16.840.1.113883.10.20.1.28", null, "CCD"));
 			problemObservation.getTemplateIds().add(
-			    utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.5", (String) null, "IHE PCC"));
+			    utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.5", null, "IHE PCC"));
 			problemObservation.getIds().add(utils.buildID(patientProblem.getUuid(), ""));
 			problemObservation.setCode(utils.buildCode("64572001", "2.16.840.1.113883.6.96", "Condition", "SNOMED-CT"));
 			problemObservation.setText(utils.buildEDText("#" + patientProblem.getProblem()));
