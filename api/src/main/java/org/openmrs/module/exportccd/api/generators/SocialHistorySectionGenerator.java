@@ -58,7 +58,9 @@ public class SocialHistorySectionGenerator {
 		buffer.append("</tr>");
 		buffer.append("</thead>");
 		buffer.append("<tbody>");
-		List<Concept> socialHistoryList = this.dao.getConceptByCategory("SocialHistory");
+		List<Concept> socialHistoryList = new ArrayList<Concept>();
+		//this.dao.getConceptByCategory("SocialHistory");
+		socialHistoryList.add(Context.getConceptService().getConcept(1633));
 		List<Obs> obsList = new ArrayList();
 		Iterator i$ = socialHistoryList.iterator();
 		
@@ -76,7 +78,7 @@ public class SocialHistorySectionGenerator {
 			        + obs.getConceptDescription().getDescription() + "</content>");
 			buffer.append("</td>");
 			buffer.append("<td>");
-			int type = obs.getConcept().getDatatype().getId().intValue();
+			int type = obs.getConcept().getDatatype().getId();
 			String value = "";
 			switch (type) {
 				case 1:
@@ -132,7 +134,7 @@ public class SocialHistorySectionGenerator {
 			CS statusCode = DatatypesFactory.eINSTANCE.createCS();
 			statusCode.setCode("completed");
 			observation.setStatusCode(statusCode);
-			observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), (Date) null));
+			observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), null));
 			ST value1 = utils.buildST(value);
 			observation.getValues().add(value1);
 			EntryRelationship entryRelationship = CDAFactory.eINSTANCE.createEntryRelationship();

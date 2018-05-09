@@ -151,7 +151,7 @@ public class VitalSignsSectionGenerator {
 					CS statusCode = DatatypesFactory.eINSTANCE.createCS();
 					statusCode.setCode("completed");
 					organizer.setStatusCode(statusCode);
-					organizer.setEffectiveTime(utils.buildEffectiveTimeinIVL(date, (Date) null));
+					organizer.setEffectiveTime(utils.buildEffectiveTimeinIVL(date, null));
 					Component4 component = CDAFactory.eINSTANCE.createComponent4();
 					Observation observation = CDAFactory.eINSTANCE.createObservation();
 					observation.setClassCode(ActClassObservation.OBS);
@@ -166,7 +166,7 @@ public class VitalSignsSectionGenerator {
 					CS statusCode1 = DatatypesFactory.eINSTANCE.createCS();
 					statusCode1.setCode("completed");
 					observation.setStatusCode(statusCode1);
-					observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), (Date) null));
+					observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), null));
 					PQ unit = DatatypesFactory.eINSTANCE.createPQ();
 					unit.setUnit(c.getUnits());
 					unit.setValue(obs.getValueNumeric());

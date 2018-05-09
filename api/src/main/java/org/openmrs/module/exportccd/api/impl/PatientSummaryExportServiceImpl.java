@@ -69,7 +69,6 @@ public class PatientSummaryExportServiceImpl extends BaseOpenmrsService implemen
 	public ContinuityOfCareDocument produceCCD(String patientECID) {
 		ContinuityOfCareDocument ccd = CCDFactory.eINSTANCE.createContinuityOfCareDocument();
 		PatientService patientService = Context.getPatientService();
-		AdministrationService administrationService = Context.getAdministrationService();
 		List<PatientIdentifierType> identifierTypes = new ArrayList<PatientIdentifierType>();
 		identifierTypes.add(patientService.getPatientIdentifierTypeByName(ECID_NAME));
 		Patient patient = patientService.getPatients(null, patientECID, identifierTypes, false).get(0);

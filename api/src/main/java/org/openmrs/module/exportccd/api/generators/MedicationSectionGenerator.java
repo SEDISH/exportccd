@@ -29,8 +29,13 @@ import org.openhealthtools.mdht.uml.hl7.vocab.x_ActMoodDocumentObservation;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntry;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship;
 import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubstanceMood;
+import org.openmrs.CareSetting;
 import org.openmrs.DrugOrder;
+import org.openmrs.Order;
+import org.openmrs.OrderType;
 import org.openmrs.Patient;
+import org.openmrs.api.OrderService;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.exportccd.api.utils.ExportCcdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,8 +43,10 @@ import org.springframework.stereotype.Component;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class MedicationSectionGenerator {
@@ -68,10 +75,12 @@ public class MedicationSectionGenerator {
 		buffer.append("</thead>");
 		buffer.append("<tbody>");
 		
-		//TODO:
-		//List<DrugOrder> drugOrders = Context.getOrderService().getDrugOrdersByPatient(patient);
-		List<DrugOrder> drugOrders = new ArrayList<DrugOrder>();
-		
+		OrderService orderService = Context.getOrderService();
+		OrderType orderType = orderService.getOrderTypeByUuid(OrderType.DRUG_ORDER_TYPE_UUID);
+		Set<Order> drugOrders = new HashSet<Order>();
+		for (CareSetting careSetting : orderService.getCareSettings(false)) {
+			drugOrders.addAll(orderService.getOrders(patient, careSetting, orderType, false));
+		}
 		List<Entry> drugOrderEntryList = new ArrayList();
 		int i = 0;
 		
@@ -98,12 +107,7 @@ public class MedicationSectionGenerator {
 			statusCode.setCode("completed");
 			medicationSubstance.setStatusCode(statusCode);
 			
-			//TODO:
-			//String frequency = drugOrder.getFrequency().getFrequencyPerDay();
-			String frequency = "";
-			
-			String value = frequency.split("x")[0];
-			String medicationFrequency = value.split("/")[0];
+			Double medicationFrequency = drugOrder.getFrequency().getFrequencyPerDay();
 			IVL_TS e = DatatypesFactory.eINSTANCE.createIVL_TS();
 			IVXB_TS startDate = DatatypesFactory.eINSTANCE.createIVXB_TS();
 			SimpleDateFormat s = new SimpleDateFormat("yyyyMMddhhmmss");
@@ -115,7 +119,7 @@ public class MedicationSectionGenerator {
 			e1.setOperator(SetOperator.A);
 			PQ period = DatatypesFactory.eINSTANCE.createPQ();
 			period.setUnit("h");
-			period.setValue(24.0D / Double.parseDouble(medicationFrequency));
+			period.setValue(24.0D / medicationFrequency);
 			e1.setPeriod(period);
 			medicationSubstance.getEffectiveTimes().add(e1);
 			medicationSubstance.setText(utils.buildEDText("#drug" + i));
