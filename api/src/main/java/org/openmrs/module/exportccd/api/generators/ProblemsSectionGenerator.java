@@ -60,7 +60,7 @@ public class ProblemsSectionGenerator {
 			}
 
 			builder.append(utils.buildSectionContent(name, utils.format(obs.getObsDatetime()), status));
-			
+
 		}
 
 		builder.append(utils.buildSectionFooter());

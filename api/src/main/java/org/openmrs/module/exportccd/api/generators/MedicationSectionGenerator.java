@@ -42,7 +42,7 @@ public class MedicationSectionGenerator {
 		String content = generateDrugSectionContent(patient);
 		medicationDetails.addText(content);
 		medicationSection.setText(medicationDetails);
-		
+
 		return ccd;
 	}
 
