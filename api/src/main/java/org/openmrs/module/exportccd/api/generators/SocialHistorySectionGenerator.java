@@ -19,17 +19,17 @@ import java.util.List;
 
 @Component
 public class SocialHistorySectionGenerator {
-	
+
 	private static final int METHOD_OD_FAMILY_PLANNING_CONCEPT_ID = 374;
-	
+
 	private static final int METHOD_OD_HIV_EXPOSURE_CONCEPT_ID = 1061;
-	
+
 	private static final int POINT_OF_HIV_TESTING_CONCEPT_ID = 159936;
-	
+
 	private static final int TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID = 1659;
-	
+
 	private static final int DURATION_CONCEPT_ID = 163340;
-	
+
 	@Autowired
 	private ExportCcdUtils utils;
 	
@@ -43,16 +43,16 @@ public class SocialHistorySectionGenerator {
 		section.setCode(utils.buildCodeCE("29762-2", "2.16.840.1.113883.6.1", "Social History", "LOINC"));
 		section.setTitle(utils.buildST("Past History"));
 		StrucDocText details = CDAFactory.eINSTANCE.createStrucDocText();
-		
+
 		StringBuilder builder = utils.buildSectionHeader("History Element", "Values", "Date");
-		
+
 		List<Concept> historyList = new ArrayList<Concept>();
 		historyList.add(Context.getConceptService().getConcept(METHOD_OD_FAMILY_PLANNING_CONCEPT_ID));
 		historyList.add(Context.getConceptService().getConcept(METHOD_OD_HIV_EXPOSURE_CONCEPT_ID));
 		historyList.add(Context.getConceptService().getConcept(POINT_OF_HIV_TESTING_CONCEPT_ID));
 		historyList.add(Context.getConceptService().getConcept(TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID));
 		historyList.add(Context.getConceptService().getConcept(DURATION_CONCEPT_ID));
-		
+
 		List<Obs> listOfObservations = new ArrayList();
 		for (Concept concept : historyList) {
 			if (concept.isSet()) {
@@ -64,16 +64,16 @@ public class SocialHistorySectionGenerator {
 				listOfObservations.addAll(Context.getObsService().getObservationsByPersonAndConcept(patient, concept));
 			}
 		}
-		
+
 		for (Obs obs : listOfObservations) {
 			String element = obs.getConcept().getDisplayString();
 			String value = obs.getValueCoded().getDisplayString();
-			
+
 			builder.append(utils.buildSectionContent(element, utils.format(obs.getObsDatetime()), value));
 		}
-		
+
 		builder.append(utils.buildSectionFooter());
-		
+
 		details.addText(builder.toString());
 		section.setText(details);
 		return ccd;

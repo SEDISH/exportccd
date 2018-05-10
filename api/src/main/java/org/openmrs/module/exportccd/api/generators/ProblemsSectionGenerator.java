@@ -19,13 +19,13 @@ import java.util.List;
 
 @Component
 public class ProblemsSectionGenerator {
-	
+
 	private static final int PROBLEMS_CONCEPT_ID = 159947;
-	
+
 	private static final int PROBLEM_CONCEPT_ID = 1284;
-	
+
 	private static final int STATUS_CONCEPT_ID = 159394;
-	
+
 	@Autowired
 	private ExportCcdUtils utils;
 	
@@ -39,9 +39,9 @@ public class ProblemsSectionGenerator {
 		problemSection.setTitle(utils.buildST("Problems"));
 		CE problemCode = DatatypesFactory.eINSTANCE.createCE();
 		problemCode.setNullFlavor(NullFlavor.NA);
-		
+
 		StringBuilder builder = utils.buildSectionHeader("Problem", "Date", "Status");
-		
+
 		List<Obs> observations = Context.getObsService().getObservationsByPersonAndConcept(patient,
 		    Context.getConceptService().getConcept(PROBLEMS_CONCEPT_ID));
 		for (Obs obs : observations) {
@@ -58,13 +58,13 @@ public class ProblemsSectionGenerator {
 						break;
 				}
 			}
-			
+
 			builder.append(utils.buildSectionContent(name, utils.format(obs.getObsDatetime()), status));
-			
+
 		}
-		
+
 		builder.append(utils.buildSectionFooter());
-		
+
 		StrucDocText problemDetails = CDAFactory.eINSTANCE.createStrucDocText();
 		problemDetails.addText(builder.toString());
 		problemSection.setText(problemDetails);
