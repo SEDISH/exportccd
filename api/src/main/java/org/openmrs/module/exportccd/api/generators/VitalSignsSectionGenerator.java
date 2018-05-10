@@ -44,7 +44,9 @@ import java.util.TreeSet;
 
 @Component
 public class VitalSignsSectionGenerator {
-	
+
+	private static final int VITAL_SIGNS_CONCEPT_ID = 1114;
+
 	@Autowired
 	private ExportCcdUtils utils;
 	
@@ -66,8 +68,7 @@ public class VitalSignsSectionGenerator {
 		buffer.append("<tr>");
 		buffer.append("<th>Date</th>");
 		List<Concept> vitalSignsList = new ArrayList();
-		//this.dao.getConceptByCategory("VitalSigns");
-		vitalSignsList.add(Context.getConceptService().getConcept(1114));
+		vitalSignsList.add(Context.getConceptService().getConcept(VITAL_SIGNS_CONCEPT_ID));
 		List<Obs> listOfObservations = new ArrayList();
 		Map<String, String> vitalSignData = new HashMap();
 		Set<Concept> observedConceptList = new HashSet();
