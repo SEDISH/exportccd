@@ -45,6 +45,8 @@ import java.util.TreeSet;
 @Component
 public class VitalSignsSectionGenerator {
 	
+	private static final int VITAL_SIGNS_CONCEPT_ID = 1114;
+	
 	@Autowired
 	private ExportCcdUtils utils;
 	
@@ -66,8 +68,7 @@ public class VitalSignsSectionGenerator {
 		buffer.append("<tr>");
 		buffer.append("<th>Date</th>");
 		List<Concept> vitalSignsList = new ArrayList();
-		//this.dao.getConceptByCategory("VitalSigns");
-		vitalSignsList.add(Context.getConceptService().getConcept(1114));
+		vitalSignsList.add(Context.getConceptService().getConcept(VITAL_SIGNS_CONCEPT_ID));
 		List<Obs> listOfObservations = new ArrayList();
 		Map<String, String> vitalSignData = new HashMap();
 		Set<Concept> observedConceptList = new HashSet();
@@ -151,7 +152,7 @@ public class VitalSignsSectionGenerator {
 					CS statusCode = DatatypesFactory.eINSTANCE.createCS();
 					statusCode.setCode("completed");
 					organizer.setStatusCode(statusCode);
-					organizer.setEffectiveTime(utils.buildEffectiveTimeinIVL(date, (Date) null));
+					organizer.setEffectiveTime(utils.buildEffectiveTimeinIVL(date, null));
 					Component4 component = CDAFactory.eINSTANCE.createComponent4();
 					Observation observation = CDAFactory.eINSTANCE.createObservation();
 					observation.setClassCode(ActClassObservation.OBS);
@@ -166,7 +167,7 @@ public class VitalSignsSectionGenerator {
 					CS statusCode1 = DatatypesFactory.eINSTANCE.createCS();
 					statusCode1.setCode("completed");
 					observation.setStatusCode(statusCode1);
-					observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), (Date) null));
+					observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), null));
 					PQ unit = DatatypesFactory.eINSTANCE.createPQ();
 					unit.setUnit(c.getUnits());
 					unit.setValue(obs.getValueNumeric());

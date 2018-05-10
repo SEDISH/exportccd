@@ -27,8 +27,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping(value = "/rest/exportccd/", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ExportccdController {
 	
-	private final Log LOG = LogFactory.getLog(this.getClass());
-	
 	private final String NEW_LINE = "</br>";
 	
 	@Autowired
@@ -51,11 +49,14 @@ public class ExportccdController {
 		response += ccd.getProblemSection() != null ? ccd.getProblemSection().getTitle().getText() : "";
 		response += ccd.getProblemSection() != null ? ccd.getProblemSection().getText().getText() + NEW_LINE : "";
 		
-		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getTitle().getText() + NEW_LINE : "";
-		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getText().getText() + NEW_LINE : "";
+		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getTitle().getText() + NEW_LINE
+		        : "";
+		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getText().getText() + NEW_LINE
+		        : "";
 		
 		response += ccd.getSocialHistorySection() != null ? ccd.getSocialHistorySection().getTitle().getText() : "";
-		response += ccd.getSocialHistorySection() != null ? ccd.getSocialHistorySection().getText().getText() + NEW_LINE : "";
+		response += ccd.getSocialHistorySection() != null ? ccd.getSocialHistorySection().getText().getText() + NEW_LINE
+		        : "";
 		
 		response += ccd.getAlertsSection() != null ? ccd.getAlertsSection().getTitle().getText() : "";
 		response += ccd.getAlertsSection() != null ? ccd.getAlertsSection().getText().getText() + NEW_LINE : "";

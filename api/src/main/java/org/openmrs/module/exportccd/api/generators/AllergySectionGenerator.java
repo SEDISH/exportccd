@@ -144,8 +144,7 @@ public class AllergySectionGenerator {
 			allergyReactionObservation.setCode(utils.buildCode("59037007", "2.16.840.1.113883.6.96", "Drug Intolerance",
 			    "SNOMED-CT"));
 			allergyReactionObservation.setText(utils.buildEDText("#reaction" + i));
-			allergyReactionObservation.setEffectiveTime(utils.buildEffectiveTimeinIVL(patientAllergy.getStartDate(),
-			    (Date) null));
+			allergyReactionObservation.setEffectiveTime(utils.buildEffectiveTimeinIVL(patientAllergy.getStartDate(), null));
 			allergyReactionObservation.getValues().add(utils.buildConceptCode(patientAllergy.getAllergen()));
 			CS c = DatatypesFactory.eINSTANCE.createCS();
 			c.setCode("completed");
@@ -168,8 +167,7 @@ public class AllergySectionGenerator {
 			Observation statusObservation = CDAFactory.eINSTANCE.createObservation();
 			statusObservation.setClassCode(ActClassObservation.OBS);
 			statusObservation.setMoodCode(x_ActMoodDocumentObservation.EVN);
-			statusObservation.getTemplateIds().add(
-			    utils.buildTemplateID("2.16.840.1.113883.10.20.1.39", (String) null, (String) null));
+			statusObservation.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.39", null, null));
 			statusObservation.setCode(utils.buildCode("33999-4", "2.16.840.1.113883.6.1", "Status", "LOINC"));
 			CS c2 = DatatypesFactory.eINSTANCE.createCS();
 			c2.setCode("completed");

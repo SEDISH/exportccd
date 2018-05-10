@@ -109,11 +109,9 @@ public class HeaderGenerator {
 		    utils.buildID(Context.getAdministrationService().getImplementationId().getImplementationId(), patient
 		            .getPatientIdentifier().getIdentifier()));
 		Set<PersonAddress> addresses = patient.getAddresses();
-		Iterator i$ = addresses.iterator();
 		
-		while (i$.hasNext()) {
-			PersonAddress address = (PersonAddress) i$.next();
-			if (address.isPreferred().booleanValue()) {
+		for (PersonAddress address : addresses) {
+			if (address.isPreferred()) {
 				AD patientAddress = DatatypesFactory.eINSTANCE.createAD();
 				patientAddress.addStreetAddressLine(address.getAddress1() + address.getAddress2());
 				patientAddress.addCity(address.getCityVillage());
@@ -140,10 +138,8 @@ public class HeaderGenerator {
 		if (civilStatus != null) {
 			Concept c = Context.getConceptService().getConceptByName(civilStatus.toString());
 			Collection<ConceptMap> conceptmapp = c.getConceptMappings();
-			Iterator ii$ = conceptmapp.iterator();
 			
-			while (ii$.hasNext()) {
-				ConceptMap n = (ConceptMap) ii$.next();
+			for (ConceptMap n : conceptmapp) {
 				if (n.getSource().getName().equalsIgnoreCase("Snomed ct")) {
 					CE codes = DatatypesFactory.eINSTANCE.createCE();
 					codes.setCode(n.getSourceCode());
@@ -208,7 +204,7 @@ public class HeaderGenerator {
 		List<Participant1> participantList = new ArrayList(relationShips.size());
 		
 		II custodianId;
-		for (int i = 0; i < relationShips.size(); ++i) {
+		for (Relationship relationship : relationShips) {
 			Participant1 e = CDAFactory.eINSTANCE.createParticipant1();
 			e.setTypeCode(ParticipationType.IND);
 			II pid1 = DatatypesFactory.eINSTANCE.createII();
@@ -222,7 +218,6 @@ public class HeaderGenerator {
 			IVL_TS time = DatatypesFactory.eINSTANCE.createIVL_TS();
 			time.setNullFlavor(NullFlavor.UNK);
 			e.setTime(time);
-			Relationship relationship = (Relationship) relationShips.get(i);
 			AssociatedEntity patientRelationShip = CDAFactory.eINSTANCE.createAssociatedEntity();
 			patientRelationShip.setClassCode(RoleClassAssociative.PRS);
 			CE relationShipCode = DatatypesFactory.eINSTANCE.createCE();
@@ -231,7 +226,7 @@ public class HeaderGenerator {
 			org.openhealthtools.mdht.uml.cda.Person associatedPerson = CDAFactory.eINSTANCE.createPerson();
 			PN associatedPersonName = DatatypesFactory.eINSTANCE.createPN();
 			Iterator<PersonAddress> patientAddressIterator = null;
-			switch (relationship.getRelationshipType().getId().intValue()) {
+			switch (relationship.getRelationshipType().getId()) {
 				case 1:
 					relationShipCode.setCode("305450004");
 					relationShipCode.setDisplayName("Doctor");
@@ -247,7 +242,7 @@ public class HeaderGenerator {
 					patientAddressIterator = relationship.getPersonA().getAddresses().iterator();
 					break;
 				case 3:
-					if (patient.getId() == relationship.getPersonA().getId()) {
+					if (patient.getId().equals(relationship.getPersonA().getId())) {
 						relationShipCode.setCode("67822003");
 						relationShipCode.setDisplayName("Child");
 						associatedPersonName.addFamily(relationship.getPersonB().getFamilyName());
@@ -262,7 +257,7 @@ public class HeaderGenerator {
 					}
 					break;
 				case 4:
-					if (patient.getId() == relationship.getPersonA().getId()) {
+					if (patient.getId().equals(relationship.getPersonA().getId())) {
 						if (relationship.getPersonB().getGender().equalsIgnoreCase("M")) {
 							relationShipCode.setCode("83559000");
 						} else {
@@ -290,7 +285,7 @@ public class HeaderGenerator {
 			patientRelationShip.setCode(relationShipCode);
 			AD associatedPersonAddress = DatatypesFactory.eINSTANCE.createAD();
 			if (patientAddressIterator.hasNext()) {
-				PersonAddress padd = (PersonAddress) patientAddressIterator.next();
+				PersonAddress padd = patientAddressIterator.next();
 				associatedPersonAddress.addStreetAddressLine(padd.getAddress1() + padd.getAddress2());
 			}
 			
@@ -364,7 +359,7 @@ public class HeaderGenerator {
 			        + "</content></td>");
 			Map<EncounterRole, Set<Provider>> encounterProviderMapByRole = encounter.getProvidersByRoles();
 			if (encounterProviderMapByRole.values().iterator().hasNext()) {
-				Set<Provider> encounterProviders = (Set) encounterProviderMapByRole.values().iterator().next();
+				Set<Provider> encounterProviders = encounterProviderMapByRole.values().iterator().next();
 				Iterator<Provider> encounterProvideIterator = encounterProviders.iterator();
 				if (encounterProvideIterator.hasNext()) {
 					buffer.append("<td>" + encounterProvideIterator.next() + "</td>");
@@ -418,12 +413,12 @@ public class HeaderGenerator {
 			Map<EncounterRole, Set<Provider>> encounterProviderMapByRole1 = encounter.getProvidersByRoles();
 			Set<Provider> encounterProviders1 = null;
 			if (encounterProviderMapByRole1.values().iterator().hasNext()) {
-				encounterProviders1 = (Set) encounterProviderMapByRole1.values().iterator().next();
+				encounterProviders1 = encounterProviderMapByRole1.values().iterator().next();
 			}
 			
 			PN providerName;
 			if (encounterProviders1.size() > 0) {
-				Provider ep = (Provider) encounterProviders1.iterator().next();
+				Provider ep = encounterProviders1.iterator().next();
 				eid.setRoot(ep.getUuid());
 				encounterAssignedEntity.getIds().add(eid);
 				AD providerAddress = DatatypesFactory.eINSTANCE.createAD();
@@ -431,7 +426,7 @@ public class HeaderGenerator {
 				if (p != null) {
 					Set<PersonAddress> providerAddSet = p.getAddresses();
 					if (!providerAddSet.isEmpty()) {
-						PersonAddress personAddress = (PersonAddress) providerAddSet.iterator().next();
+						PersonAddress personAddress = providerAddSet.iterator().next();
 						providerAddress.addStreetAddressLine(personAddress.getAddress1() + personAddress.getAddress2());
 						providerAddress.addCity(personAddress.getCityVillage());
 						providerAddress.addCountry(personAddress.getCountry());

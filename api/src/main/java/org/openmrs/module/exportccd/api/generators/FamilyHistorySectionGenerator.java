@@ -68,13 +68,10 @@ public class FamilyHistorySectionGenerator {
 			System.out.println(familyHistory);
 			String relation = "";
 			String diagnosis = "";
-			String inCare = "";
 			String age = "";
-			Iterator ii$ = familyHistory.iterator();
 			
-			while (ii$.hasNext()) {
-				Obs obs2 = (Obs) ii$.next();
-				switch (obs2.getConcept().getId().intValue()) {
+			for (Obs obs2 : familyHistory) {
+				switch (obs2.getConcept().getId()) {
 					case 1560:
 						relation = obs2.getValueCoded().getDisplayString();
 						break;
