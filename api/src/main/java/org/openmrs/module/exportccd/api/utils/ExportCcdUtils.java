@@ -143,45 +143,45 @@ public class ExportCcdUtils {
 		effectiveTime.setHigh(high);
 		return effectiveTime;
 	}
-
-	public StringBuilder buildSectionHeader(String ... elements) {
+	
+	public StringBuilder buildSectionHeader(String... elements) {
 		StringBuilder builder = new StringBuilder();
-
+		
 		builder.append("<table border=\"1\" width=\"100%\">");
 		builder.append("<thead>");
 		builder.append("<tr>");
-
+		
 		for (String element : elements) {
 			builder.append("<th>").append(element).append("</th>");
 		}
-
+		
 		builder.append("</tr>");
 		builder.append("</thead>");
 		builder.append("<tbody>");
-
+		
 		return builder;
 	}
-
-	public String buildSectionContent(String ... elements) {
+	
+	public String buildSectionContent(String... elements) {
 		StringBuilder builder = new StringBuilder();
-
+		
 		builder.append("<tr>");
-
+		
 		for (String element : elements) {
 			builder.append("<td>").append(element).append("</td>");
 		}
-
+		
 		builder.append("</tr>");
-
+		
 		return builder.toString();
 	}
-
+	
 	public String buildSectionFooter() {
 		StringBuilder builder = new StringBuilder();
-
+		
 		builder.append("</tbody>");
 		builder.append("</table>");
-
+		
 		return builder.toString();
 	}
 }

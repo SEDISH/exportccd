@@ -44,9 +44,9 @@ import java.util.TreeSet;
 
 @Component
 public class VitalSignsSectionGenerator {
-
+	
 	private static final int VITAL_SIGNS_CONCEPT_ID = 1114;
-
+	
 	@Autowired
 	private ExportCcdUtils utils;
 	
