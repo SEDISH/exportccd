@@ -16,15 +16,15 @@ import java.util.List;
 
 @Component
 public class MedicationSectionGenerator {
-
+	
 	private static final int DRUGS_CONCEPT_ID = 1442;
-
+	
 	private static final int DOSE_CONCEPT_ID = 1444;
-
+	
 	private static final int DRUG_NAME_CONCEPT_ID = 1282;
-
+	
 	private static final int DURATION_CONCEPT_ID = 159368;
-
+	
 	@Autowired
 	private ExportCcdUtils utils;
 	
@@ -37,7 +37,7 @@ public class MedicationSectionGenerator {
 		medicationSection.setCode(utils
 		        .buildCodeCE("10160-0", "2.16.840.1.113883.6.1", "History of medication use", "LOINC"));
 		medicationSection.setTitle(utils.buildST("Medication"));
-
+		
 		StrucDocText medicationDetails = CDAFactory.eINSTANCE.createStrucDocText();
 		String content = generateDrugSectionContent(patient);
 		medicationDetails.addText(content);
@@ -45,10 +45,10 @@ public class MedicationSectionGenerator {
 		
 		return ccd;
 	}
-
+	
 	private String generateDrugSectionContent(Patient patient) {
 		StringBuilder builder = utils.buildSectionHeader("Medication", "Date", "Dose", "Days");
-
+		
 		List<Obs> observations = Context.getObsService().getObservationsByPersonAndConcept(patient,
 		    Context.getConceptService().getConcept(DRUGS_CONCEPT_ID));
 		for (Obs obs : observations) {
@@ -68,12 +68,12 @@ public class MedicationSectionGenerator {
 						duration = String.valueOf(obs2.getValueNumeric());
 				}
 			}
-
+			
 			builder.append(utils.buildSectionContent(name, utils.format(obs.getObsDatetime()), dose, duration));
 		}
-
+		
 		builder.append(utils.buildSectionFooter());
-
+		
 		return builder.toString();
 	}
 }
