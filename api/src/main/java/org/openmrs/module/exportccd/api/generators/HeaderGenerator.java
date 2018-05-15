@@ -82,8 +82,6 @@ public class HeaderGenerator {
 		ccd.setEffectiveTime(utils.buildEffectiveTime(d));
 		SimpleDateFormat s = new SimpleDateFormat("yyyyMMddhhmmss");
 		String creationDate = s.format(d);
-		ccd.setId(utils.buildID(Context.getAdministrationService().getImplementationId().getImplementationId(),
-		    patient.getId() + Context.getAdministrationService().getGlobalProperty("application.name") + creationDate));
 		InfrastructureRootTypeId typeId = CDAFactory.eINSTANCE.createInfrastructureRootTypeId();
 		typeId.setExtension("POCD_HD000040");
 		typeId.setRoot("2.16.840.1.113883.1.3");
@@ -104,10 +102,6 @@ public class HeaderGenerator {
 		confidentialityCode.setCode("N");
 		ccd.setConfidentialityCode(confidentialityCode);
 		PatientRole patientRole = CDAFactory.eINSTANCE.createPatientRole();
-		II patientID = DatatypesFactory.eINSTANCE.createII();
-		patientRole.getIds().add(
-		    utils.buildID(Context.getAdministrationService().getImplementationId().getImplementationId(), patient
-		            .getPatientIdentifier().getIdentifier()));
 		Set<PersonAddress> addresses = patient.getAddresses();
 		
 		for (PersonAddress address : addresses) {
@@ -163,7 +157,6 @@ public class HeaderGenerator {
 		providerOrganizationAddress.addState("");
 		providerOrganization.getAddrs().add(providerOrganizationAddress);
 		ON organizationName = DatatypesFactory.eINSTANCE.createON();
-		organizationName.addText(Context.getAdministrationService().getImplementationId().getName());
 		providerOrganization.getNames().add(organizationName);
 		TEL providerOrganizationTelecon = DatatypesFactory.eINSTANCE.createTEL();
 		providerOrganizationTelecon.setNullFlavor(NullFlavor.UNK);
@@ -174,15 +167,12 @@ public class HeaderGenerator {
 		author.setTime(utils.buildEffectiveTime(d));
 		AssignedAuthor assignedAuthor = CDAFactory.eINSTANCE.createAssignedAuthor();
 		II authorId = DatatypesFactory.eINSTANCE.createII();
-		authorId.setRoot(Context.getAdministrationService().getImplementationId().getImplementationId());
-		authorId.setExtension(Context.getAdministrationService().getImplementationId().getName());
 		assignedAuthor.getIds().add(authorId);
 		Organization representedOrganization = CDAFactory.eINSTANCE.createOrganization();
 		AD representedOrganizationAddress = DatatypesFactory.eINSTANCE.createAD();
 		representedOrganizationAddress.addCounty("");
 		representedOrganizationAddress.addState("");
 		ON implName = DatatypesFactory.eINSTANCE.createON();
-		implName.addText(Context.getAdministrationService().getImplementationId().getName());
 		representedOrganization.getNames().add(implName);
 		assignedAuthor.getAddrs().add(representedOrganizationAddress);
 		assignedAuthor.getTelecoms().add(providerOrganizationTelecon);
@@ -301,9 +291,6 @@ public class HeaderGenerator {
 		AssignedCustodian assignedCustodian = CDAFactory.eINSTANCE.createAssignedCustodian();
 		CustodianOrganization custodianOrganization = CDAFactory.eINSTANCE.createCustodianOrganization();
 		custodianId = DatatypesFactory.eINSTANCE.createII();
-		String custodianUuid = Context.getAdministrationService().getImplementationId().getImplementationId();
-		custodianId.setRoot(custodianUuid);
-		custodianId.setExtension(Context.getAdministrationService().getImplementationId().getName());
 		custodianOrganization.getIds().add(custodianId);
 		custodianOrganization.setAddr(providerOrganizationAddress);
 		custodianOrganization.setName(organizationName);
@@ -460,7 +447,6 @@ public class HeaderGenerator {
 			PlayingEntity playingEntity = CDAFactory.eINSTANCE.createPlayingEntity();
 			playingEntity.setClassCode(EntityClassRoot.PLC);
 			providerName = DatatypesFactory.eINSTANCE.createPN();
-			providerName.addText(Context.getAdministrationService().getImplementationId().getName());
 			playingEntity.getNames().add(providerName);
 			participantRole.setPlayingEntity(playingEntity);
 			participant.setParticipantRole(participantRole);
