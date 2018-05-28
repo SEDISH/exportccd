@@ -14,6 +14,8 @@ import org.apache.commons.logging.LogFactory;
 import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
 import org.openmrs.module.exportccd.api.PatientSummaryExportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +41,10 @@ public class ExportccdController {
 
 		String response = wrapSectionsToString(ccd);
 
-		return new ResponseEntity<>(response, HttpStatus.OK);
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.add("Content-Type", "text/html; charset=utf-8");
+
+		return new ResponseEntity<>(response, responseHeaders, HttpStatus.OK);
 	}
 	
 	private String wrapSectionsToString(ContinuityOfCareDocument ccd) {
