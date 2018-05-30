@@ -52,11 +52,11 @@ public class PlanOfCareSectionGenerator {
 		section.setCode(utils.buildCodeCE("18776-5", "2.16.840.1.113883.6.1", "Treatment plan", "LOINC"));
 		section.setTitle(utils.buildST("Plan Of Care"));
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("<table border=\"1\" width=\"100%\">");
+		buffer.append(utils.getBorderStart());
 		buffer.append("<thead>");
 		buffer.append("<tr>");
-		buffer.append("<th>Planned Activity</th>");
-		buffer.append("<th>Planned Date</th>");
+		buffer.append("<th style=\"text-align: left;\">Planned Activity</th>");
+		buffer.append("<th style=\"text-align: left;\">Planned Date</th>");
 		List<Concept> labResultsList = this.dao.getConceptByCategory("PlanOfCare");
 		List<Obs> listOfObservations = new ArrayList();
 		Iterator i$ = labResultsList.iterator();
