@@ -57,10 +57,11 @@ public class ExportccdController {
 		String response = "";
 		
 		response += ccd.getEncountersSection() != null ? H1_START + ccd.getEncountersSection().getTitle().getText() + H1_END
-		         + H2_START + "(dernier 6 mois et première visite)" + H2_END : "";
+		        + H2_START + "(dernier 6 mois et première visite)" + H2_END : "";
 		response += ccd.getEncountersSection() != null ? ccd.getEncountersSection().getText().getText() + NEW_LINE : "";
 		
-		response += ccd.getProblemSection() != null ? H1_START + ccd.getProblemSection().getTitle().getText() + H1_END : "";
+		response += ccd.getProblemSection() != null ? H1_START + ccd.getProblemSection().getTitle().getText() + H1_END
+		        + H2_START + "Diagnostics médicaux" + H2_END : "";
 		response += ccd.getProblemSection() != null ? ccd.getProblemSection().getText().getText() + NEW_LINE : "";
 		
 		/*
