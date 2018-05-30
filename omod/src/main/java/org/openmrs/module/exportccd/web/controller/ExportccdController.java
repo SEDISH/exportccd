@@ -56,6 +56,11 @@ public class ExportccdController {
 		
 		String response = "";
 		
+		response += ccd.getFamilyHistorySection() != null ? H1_START + ccd.getFamilyHistorySection().getTitle().getText()
+		        + H1_END : "";
+		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getText().getText() + NEW_LINE
+		        : "";
+		
 		response += ccd.getEncountersSection() != null ? H1_START + ccd.getEncountersSection().getTitle().getText() + H1_END
 		        + H2_START + "(dernier 6 mois et première visite)" + H2_END : "";
 		response += ccd.getEncountersSection() != null ? ccd.getEncountersSection().getText().getText() + NEW_LINE : "";

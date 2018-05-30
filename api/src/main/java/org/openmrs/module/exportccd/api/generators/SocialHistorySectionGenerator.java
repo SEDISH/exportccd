@@ -41,15 +41,16 @@ public class SocialHistorySectionGenerator {
 		ccd.addSection(section);
 		section.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.15", "", "HITSP/C83"));
 		section.setCode(utils.buildCodeCE("29762-2", "2.16.840.1.113883.6.1", "Social History", "LOINC"));
-		section.setTitle(utils.buildST("Past History"));
+		section.setTitle(utils.buildST("Historique"));
 		StrucDocText details = CDAFactory.eINSTANCE.createStrucDocText();
 		
-		StringBuilder builder = utils.buildSectionHeader("History Element", "Values", "Date");
+		StringBuilder builder = utils.buildSectionHeader("Test Anticorps VIH", "Values", "Date");
 		
 		List<Concept> historyList = new ArrayList<Concept>();
+		historyList.add(Context.getConceptService().getConcept(POINT_OF_HIV_TESTING_CONCEPT_ID));
 		historyList.add(Context.getConceptService().getConcept(METHOD_OD_FAMILY_PLANNING_CONCEPT_ID));
 		historyList.add(Context.getConceptService().getConcept(METHOD_OD_HIV_EXPOSURE_CONCEPT_ID));
-		historyList.add(Context.getConceptService().getConcept(POINT_OF_HIV_TESTING_CONCEPT_ID));
+
 		historyList.add(Context.getConceptService().getConcept(TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID));
 		historyList.add(Context.getConceptService().getConcept(DURATION_CONCEPT_ID));
 		

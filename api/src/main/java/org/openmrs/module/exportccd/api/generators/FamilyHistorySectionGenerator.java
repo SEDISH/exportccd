@@ -33,6 +33,7 @@ import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntryRelationship
 import org.openhealthtools.mdht.uml.hl7.vocab.x_DocumentSubject;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.Person;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.exportccd.api.utils.ExportCcdUtils;
@@ -45,6 +46,14 @@ import java.util.List;
 @Component
 public class FamilyHistorySectionGenerator {
 	
+	public static final String BIRTHPLACE = "Birthplace";
+	
+	public static final String TELEPHONE_NUMBER = "Telephone Number";
+	
+	public static final String CIVIL_STATUS = "Civil Status";
+	
+	public static final String FIRST_NAME_OF_MOTHER = "First Name of Mother";
+	
 	@Autowired
 	private ExportCcdUtils utils;
 	
@@ -55,122 +64,44 @@ public class FamilyHistorySectionGenerator {
 		section.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.4", "", "CCD"));
 		section.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.3.14", "", "IHE PCC"));
 		section.setCode(utils.buildCodeCE("10157-6", "2.16.840.1.113883.6.1", "History of family member diseases", "LOINC"));
-		section.setTitle(utils.buildST("Family History"));
+		section.setTitle(utils.buildST("Informations Demographiques"));
 		StrucDocText details = CDAFactory.eINSTANCE.createStrucDocText();
-		StringBuffer buffer = new StringBuffer();
-		ConceptService cs = Context.getConceptService();
-		List<Obs> l = Context.getObsService().getObservationsByPersonAndConcept(patient, cs.getConcept(160593));
-		Iterator i$ = l.iterator();
 		
-		while (i$.hasNext()) {
-			Obs obs = (Obs) i$.next();
-			List<Obs> familyHistory = Context.getObsService().findObsByGroupId(obs.getId());
-			System.out.println(familyHistory);
-			String relation = "";
-			String diagnosis = "";
-			String age = "";
-			
-			for (Obs obs2 : familyHistory) {
-				switch (obs2.getConcept().getId()) {
-					case 1560:
-						relation = obs2.getValueCoded().getDisplayString();
-						break;
-					case 160592:
-						diagnosis = obs2.getValueCoded().getDisplayString();
-						break;
-					case 160617:
-						age = obs2.getValueNumeric().toString();
-				}
-			}
-			
-			buffer.append("<paragraph>" + relation + "</paragraph>");
-			buffer.append(utils.getBorderStart());
-			buffer.append("<thead>");
-			buffer.append("<tr>");
-			buffer.append("<th style=\"text-align: left;\">Age</th>");
-			buffer.append("<th style=\"text-align: left;\">Diagnosis</th>");
-			buffer.append("</tr>");
-			buffer.append("</thead>");
-			buffer.append("<tbody>");
-			buffer.append("<tr>");
-			buffer.append("<td>" + age + "</td>");
-			buffer.append("<td> <content id=\"" + diagnosis + "\">" + diagnosis + "</content></td>");
-			buffer.append("</tr>");
-			buffer.append("</tbody>");
-			buffer.append("</table>");
-			Entry entry = CDAFactory.eINSTANCE.createEntry();
-			entry.setTypeCode(x_ActRelationshipEntry.DRIV);
-			Organizer organizer = CDAFactory.eINSTANCE.createOrganizer();
-			organizer.setMoodCode(ActMood.EVN);
-			organizer.setClassCode(x_ActClassDocumentEntryOrganizer.CLUSTER);
-			organizer.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.3.88.11.83.18", "", "HITSP C83"));
-			organizer.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.23", "", "CCD"));
-			organizer.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.15", "", "IHE PCC"));
-			CS statusCode = DatatypesFactory.eINSTANCE.createCS();
-			statusCode.setCode("completed");
-			organizer.setStatusCode(statusCode);
-			Subject subject = CDAFactory.eINSTANCE.createSubject();
-			RelatedSubject relatedSubject = CDAFactory.eINSTANCE.createRelatedSubject();
-			relatedSubject.setClassCode(x_DocumentSubject.PRS);
-			relatedSubject.setCode(utils.buildConceptCode(cs.getConcept(relation), "Snomed"));
-			AD address = DatatypesFactory.eINSTANCE.createAD();
-			relatedSubject.getAddrs().add(address);
-			TEL tel = DatatypesFactory.eINSTANCE.createTEL();
-			tel.setNullFlavor(NullFlavor.UNK);
-			SubjectPerson subjectPerson = CDAFactory.eINSTANCE.createSubjectPerson();
-			PN name = DatatypesFactory.eINSTANCE.createPN();
-			subjectPerson.getNames().add(name);
-			CE gender = DatatypesFactory.eINSTANCE.createCE();
-			gender.setNullFlavor(NullFlavor.UNK);
-			subjectPerson.setAdministrativeGenderCode(gender);
-			TS birthTime = DatatypesFactory.eINSTANCE.createTS();
-			birthTime.setNullFlavor(NullFlavor.UNK);
-			subjectPerson.setBirthTime(birthTime);
-			relatedSubject.setSubject(subjectPerson);
-			relatedSubject.getTelecoms().add(tel);
-			subject.setRelatedSubject(relatedSubject);
-			organizer.setSubject(subject);
-			Component4 obsComp = CDAFactory.eINSTANCE.createComponent4();
-			Observation co = CDAFactory.eINSTANCE.createObservation();
-			co.setClassCode(ActClassObservation.OBS);
-			co.setMoodCode(x_ActMoodDocumentObservation.EVN);
-			co.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.22", "", "CCD"));
-			co.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.13", "", "IHE PCC"));
-			co.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.13.3", "", "IHE PCC"));
-			co.getIds().add(utils.buildID(obs.getUuid(), ""));
-			co.setCode(utils.buildConceptCode(cs.getConcept(diagnosis), "SNOMED"));
-			co.setText(utils.buildEDText("#" + diagnosis));
-			CS statusCode1 = DatatypesFactory.eINSTANCE.createCS();
-			statusCode1.setCode("completed");
-			co.setStatusCode(statusCode1);
-			IVL_TS et = DatatypesFactory.eINSTANCE.createIVL_TS();
-			et.setNullFlavor(NullFlavor.UNK);
-			co.setEffectiveTime(et);
-			obsComp.setObservation(co);
-			EntryRelationship e = CDAFactory.eINSTANCE.createEntryRelationship();
-			e.setTypeCode(x_ActRelationshipEntryRelationship.SUBJ);
-			e.setInversionInd(true);
-			Observation ob = CDAFactory.eINSTANCE.createObservation();
-			ob.setClassCode(ActClassObservation.OBS);
-			ob.setMoodCode(x_ActMoodDocumentObservation.EVN);
-			ob.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.38", "", ""));
-			ob.setCode(utils.buildCode("397659008", "2.16.840.1.113883.6.96", "Age", "SNOMED-CT"));
-			CS statusCode2 = DatatypesFactory.eINSTANCE.createCS();
-			statusCode2.setCode("completed");
-			ob.setStatusCode(statusCode2);
-			INT age1 = DatatypesFactory.eINSTANCE.createINT();
-			if (StringUtils.isNotEmpty(age)) {
-				age1.setValue((int) Float.parseFloat(age));
-			}
-			ob.getValues().add(age1);
-			e.setObservation(ob);
-			co.getEntryRelationships().add(e);
-			organizer.getComponents().add(obsComp);
-			entry.setOrganizer(organizer);
-			section.getEntries().add(entry);
+		StringBuilder builder = utils.buildSectionHeader();
+		
+		Person person = patient.getPerson();
+		
+		StringBuilder nameRow = new StringBuilder();
+		nameRow.append(person.getGivenName());
+		if (person.getMiddleName() != null) {
+			nameRow.append(" ");
+			nameRow.append(patient.getPerson().getMiddleName());
 		}
+		nameRow.append(",");
+		nameRow.append(person.getFamilyName());
+		builder.append(utils.buildSectionContent("Nom:", nameRow.toString()));
 		
-		details.addText(buffer.toString());
+		builder.append(utils.buildSectionContent("Addresse, Commune:", person.getPersonAddress().getAddress1() == null ? ""
+		        : person.getPersonAddress().getAddress1()));
+		builder.append(utils.buildSectionContent("Section, communale:",
+		    person.getPersonAddress().getCountyDistrict() != null ? "" : person.getPersonAddress().getCountyDistrict()));
+		builder.append(utils.buildSectionContent("Localité", person.getPersonAddress().getCityVillage() == null ? ""
+		        : person.getPersonAddress().getCityVillage()));
+		builder.append(utils.buildSectionContent("Lieu de naissance:", person.getAttribute(BIRTHPLACE) == null ? "" : person
+		        .getAttribute(BIRTHPLACE).getValue()));
+		builder.append(utils.buildSectionContent("Téléphone:", person.getAttribute(TELEPHONE_NUMBER) == null ? "" : person
+		        .getAttribute(TELEPHONE_NUMBER).getValue()));
+		builder.append(utils.buildSectionContent("Sexe:", person.getGender() == null ? "" : person.getGender()));
+		builder.append(utils.buildSectionContent("Statut martial:", person.getAttribute(CIVIL_STATUS) == null ? "" : person
+		        .getAttribute(CIVIL_STATUS).getValue()));
+		String birthdate = person.getBirthdateEstimated() == true ? "~" : "";
+		birthdate += person.getBirthdate().toString() == null ? "" : person.getBirthdate().toString();
+		builder.append(utils.buildSectionContent("Date de naissance:", birthdate));
+		builder.append(utils.buildSectionContent("Prénom de la mère:", person.getAttribute(FIRST_NAME_OF_MOTHER) ==
+				null ? ""
+		        : person.getAttribute(FIRST_NAME_OF_MOTHER).getValue()));
+		
+		details.addText(builder.toString());
 		section.setText(details);
 		return ccd;
 	}
