@@ -325,13 +325,13 @@ public class HeaderGenerator {
 		encounterSectionTitle.addText("Encounters");
 		encounterSection.setTitle(encounterSectionTitle);
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("<table border=\"1\" width=\"100%\">");
+		buffer.append(utils.getBorderStart());
 		buffer.append("<thead>");
 		buffer.append("<tr>");
-		buffer.append("<th>Encounter Type</th>");
-		buffer.append("<th>Clinicial Name</th>");
-		buffer.append("<th>Location</th>");
-		buffer.append("<th>Date</th>");
+		buffer.append("<th style=\"text-align: left;\">Encounter Type</th>");
+		buffer.append("<th style=\"text-align: left;\">Clinicial Name</th>");
+		buffer.append("<th style=\"text-align: left;\">Location</th>");
+		buffer.append("<th style=\"text-align: left;\">Date</th>");
 		buffer.append("</tr>");
 		buffer.append("</thead>");
 		buffer.append("<tbody>");

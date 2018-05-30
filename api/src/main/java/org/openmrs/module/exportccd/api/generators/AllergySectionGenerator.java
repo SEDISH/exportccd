@@ -70,12 +70,12 @@ public class AllergySectionGenerator {
 		allergySectionTitle.addText("Allergies,  Adverse Reactions & Alerts");
 		allergySection.setTitle(allergySectionTitle);
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("<table border=\"1\" width=\"100%\">");
+		buffer.append(utils.getBorderStart());
 		buffer.append("<thead>");
 		buffer.append("<tr>");
-		buffer.append("<th>Substance</th>");
-		buffer.append("<th>Reaction</th>");
-		buffer.append("<th>Date</th>");
+		buffer.append("<th style=\"text-align: left;\">Substance</th>");
+		buffer.append("<th style=\"text-align: left;\">Reaction</th>");
+		buffer.append("<th style=\"text-align: left;\">Date</th>");
 		buffer.append("</tr>");
 		buffer.append("</thead>");
 		buffer.append("<tbody>");

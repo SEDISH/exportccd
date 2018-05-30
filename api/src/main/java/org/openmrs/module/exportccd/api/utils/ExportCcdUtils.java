@@ -21,7 +21,7 @@ import java.util.Iterator;
 @Component
 public class ExportCcdUtils {
 	
-	SimpleDateFormat s = new SimpleDateFormat("yyyyMMdd");
+	SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy");
 	
 	public String format(Date date) {
 		return s.format(date);
@@ -121,7 +121,7 @@ public class ExportCcdUtils {
 	
 	public TS buildEffectiveTime(Date d) {
 		TS effectiveTime = DatatypesFactory.eINSTANCE.createTS();
-		SimpleDateFormat s = new SimpleDateFormat("yyyyMMddhhmmss");
+		SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy hh:mm");
 		String creationDate = s.format(d);
 		String timeOffset = d.getTimezoneOffset() + "";
 		timeOffset = timeOffset.replace("-", "-0");
@@ -147,12 +147,12 @@ public class ExportCcdUtils {
 	public StringBuilder buildSectionHeader(String... elements) {
 		StringBuilder builder = new StringBuilder();
 		
-		builder.append("<table border=\"1\" width=\"100%\">");
+		builder.append(getBorderStart());
 		builder.append("<thead>");
 		builder.append("<tr>");
 		
 		for (String element : elements) {
-			builder.append("<th>").append(element).append("</th>");
+			builder.append("<th style=\"text-align: left;\">").append(element).append("</th>");
 		}
 		
 		builder.append("</tr>");
@@ -183,5 +183,9 @@ public class ExportCcdUtils {
 		builder.append("</table>");
 		
 		return builder.toString();
+	}
+	
+	public String getBorderStart() {
+		return "<table style=\"margin-left: auto; margin-right: auto;\" border=\"0\" width=\"80%\">";
 	}
 }

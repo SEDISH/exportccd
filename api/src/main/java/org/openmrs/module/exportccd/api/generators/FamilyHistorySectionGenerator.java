@@ -84,11 +84,11 @@ public class FamilyHistorySectionGenerator {
 			}
 			
 			buffer.append("<paragraph>" + relation + "</paragraph>");
-			buffer.append("<table border=\"1\" width=\"100%\">");
+			buffer.append(utils.getBorderStart());
 			buffer.append("<thead>");
 			buffer.append("<tr>");
-			buffer.append("<th>Age</th>");
-			buffer.append("<th>Diagnosis</th>");
+			buffer.append("<th style=\"text-align: left;\">Age</th>");
+			buffer.append("<th style=\"text-align: left;\">Diagnosis</th>");
 			buffer.append("</tr>");
 			buffer.append("</thead>");
 			buffer.append("<tbody>");

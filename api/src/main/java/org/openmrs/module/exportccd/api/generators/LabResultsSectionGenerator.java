@@ -58,10 +58,10 @@ public class LabResultsSectionGenerator {
 		    "LOINC"));
 		section.setTitle(utils.buildST("Results"));
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("<table border=\"1\" width=\"100%\">");
+		buffer.append(utils.getBorderStart());
 		buffer.append("<thead>");
 		buffer.append("<tr>");
-		buffer.append("<th>Date</th>");
+		buffer.append("<th style=\"text-align: left;\">Date</th>");
 		List<Concept> labResultsList = new ArrayList<Concept>();
 		labResultsList.add(Context.getConceptService().getConcept(160593));
 		List<Obs> listOfObservations = new ArrayList();
@@ -110,7 +110,7 @@ public class LabResultsSectionGenerator {
 		
 		while (i$.hasNext()) {
 			Date date = (Date) i$.next();
-			buffer.append("<th>" + utils.format(date) + "</th>");
+			buffer.append("<th style=\"text-align: left;\">" + utils.format(date) + "</th>");
 		}
 		
 		buffer.append("</tr>");

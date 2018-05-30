@@ -63,10 +63,10 @@ public class VitalSignsSectionGenerator {
 		section.setCode(utils.buildCodeCE("8716-3", "2.16.840.1.113883.6.1", "Vital signs", "LOINC"));
 		section.setTitle(utils.buildST("Vital Signs"));
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("<table border=\"1\" width=\"100%\">");
+		buffer.append(utils.getBorderStart());
 		buffer.append("<thead>");
 		buffer.append("<tr>");
-		buffer.append("<th>Date</th>");
+		buffer.append("<th style=\"text-align: left;\">Date</th>");
 		List<Concept> vitalSignsList = new ArrayList();
 		vitalSignsList.add(Context.getConceptService().getConcept(VITAL_SIGNS_CONCEPT_ID));
 		List<Obs> listOfObservations = new ArrayList();
@@ -117,7 +117,7 @@ public class VitalSignsSectionGenerator {
 		
 		while (i$.hasNext()) {
 			date = (Date) i$.next();
-			buffer.append("<th>" + utils.format(date) + "</th>");
+			buffer.append("<th style=\"text-align: left;\">" + utils.format(date) + "</th>");
 		}
 		
 		buffer.append("</tr>");
