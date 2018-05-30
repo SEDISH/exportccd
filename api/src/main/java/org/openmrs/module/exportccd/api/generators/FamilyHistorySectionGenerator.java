@@ -64,7 +64,7 @@ public class FamilyHistorySectionGenerator {
 		section.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.4", "", "CCD"));
 		section.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.3.14", "", "IHE PCC"));
 		section.setCode(utils.buildCodeCE("10157-6", "2.16.840.1.113883.6.1", "History of family member diseases", "LOINC"));
-		section.setTitle(utils.buildST("Informations Demographiques"));
+		section.setTitle(utils.buildST("Informations Démographiques"));
 		StrucDocText details = CDAFactory.eINSTANCE.createStrucDocText();
 		
 		StringBuilder builder = utils.buildSectionHeader();
@@ -77,7 +77,7 @@ public class FamilyHistorySectionGenerator {
 			nameRow.append(" ");
 			nameRow.append(patient.getPerson().getMiddleName());
 		}
-		nameRow.append(",");
+		nameRow.append(", ");
 		nameRow.append(person.getFamilyName());
 		builder.append(utils.buildSectionContent("Nom:", nameRow.toString()));
 		
