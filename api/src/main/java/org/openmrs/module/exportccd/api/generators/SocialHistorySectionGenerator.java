@@ -29,7 +29,7 @@ public class SocialHistorySectionGenerator {
 	private static final int TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID = 1659;
 	
 	private static final int OBSTETRIC_HISTORY_ID = 160076;
-
+	
 	private static final int ARV_ID = 5356;
 	
 	@Autowired
@@ -57,13 +57,13 @@ public class SocialHistorySectionGenerator {
 				buildRow(builder, obs);
 			}
 		}
-
+		
 		buildSubsection(patient, builder, METHOD_OD_HIV_EXPOSURE_CONCEPT_ID, "Mode probable de transmission");
 		buildSubsection(patient, builder, OBSTETRIC_HISTORY_ID, "Antécédents Obstétriques et Grossesse");
 		buildSubsection(patient, builder, METHOD_OD_FAMILY_PLANNING_CONCEPT_ID, "Planning familial");
 		buildSubsection(patient, builder, TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID, "Statut de TB");
 		buildSubsection(patient, builder, ARV_ID, "Eligibilité Médical aux ARV");
-
+		
 		builder.append(utils.buildSectionFooter());
 		
 		details.addText(builder.toString());
@@ -71,9 +71,9 @@ public class SocialHistorySectionGenerator {
 		ccd.addSection(section);
 		return ccd;
 	}
-
+	
 	private void buildSubsection(Patient patient, StringBuilder builder, int conceptId, String sectionHeader) {
-
+		
 		Concept concept = Context.getConceptService().getConcept(conceptId);
 		List<Obs> listOfObservations = extractObservations(patient, concept);
 		if (!listOfObservations.isEmpty()) {
@@ -83,7 +83,7 @@ public class SocialHistorySectionGenerator {
 			}
 		}
 	}
-
+	
 	private void buildRow(StringBuilder builder, Obs obs) {
 		if (obs.getValueNumeric() != null) {
 			String conceptName = obs.getConcept().getDisplayString();
@@ -97,7 +97,7 @@ public class SocialHistorySectionGenerator {
 			builder.append(utils.buildSectionContent(obs.getValueCoded().getDisplayString()));
 		}
 	}
-
+	
 	private List<Obs> extractObservations(Patient patient, Concept concept) {
 		List<Obs> listOfObservations = new ArrayList<Obs>();
 		if (concept.isSet()) {

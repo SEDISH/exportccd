@@ -70,15 +70,15 @@ public class ExportccdController {
 		        + H2_START + "Diagnostics médicaux" + H2_END : "";
 		response += ccd.getProblemSection() != null ? ccd.getProblemSection().getText().getText() + NEW_LINE + NEW_LINE : "";
 		
-		/*
+
 		response += ccd.getSocialHistorySection() != null ? H1_START + ccd.getSocialHistorySection().getTitle().getText()
 		        + H1_END : "";
 		response += ccd.getSocialHistorySection() != null ? ccd.getSocialHistorySection().getText().getText() + NEW_LINE + NEW_LINE
 		        : "";
 
-		response += ccd.getAlertsSection() != null ? H1_START + ccd.getAlertsSection().getTitle().getText() + H1_END : "";
-		response += ccd.getAlertsSection() != null ? ccd.getAlertsSection().getText().getText() + NEW_LINE + NEW_LINE : "";
-		*/
+//		response += ccd.getAlertsSection() != null ? H1_START + ccd.getAlertsSection().getTitle().getText() + H1_END : "";
+//		response += ccd.getAlertsSection() != null ? ccd.getAlertsSection().getText().getText() + NEW_LINE + NEW_LINE : "";
+
 		
 		response += ccd.getMedicationsSection() != null ? H1_START + ccd.getMedicationsSection().getTitle().getText()
 		        + H1_END : "";
