@@ -1,5 +1,9 @@
 package org.openmrs.module.exportccd.api.generators;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import org.openhealthtools.mdht.uml.cda.AssignedAuthor;
 import org.openhealthtools.mdht.uml.cda.AssignedCustodian;
 import org.openhealthtools.mdht.uml.cda.AssignedEntity;
@@ -303,155 +307,34 @@ public class HeaderGenerator {
 	
 	private ContinuityOfCareDocument buildEncounters(ContinuityOfCareDocument ccd, Patient patient) {
 		EncountersSection encounterSection = CCDFactory.eINSTANCE.createEncountersSection();
-		II encounterSectionTemplateID = DatatypesFactory.eINSTANCE.createII();
-		encounterSectionTemplateID.setRoot("2.16.840.1.113883.3.88.11.83.127");
-		encounterSectionTemplateID.setAssigningAuthorityName("HITSP/C83");
-		encounterSection.getTemplateIds().add(encounterSectionTemplateID);
-		II encounterSectionTemplateID1 = DatatypesFactory.eINSTANCE.createII();
-		encounterSectionTemplateID1.setRoot("1.3.6.1.4.1.19376.1.5.3.1.1.5.3.3");
-		encounterSectionTemplateID1.setAssigningAuthorityName("IHE PCC");
-		encounterSection.getTemplateIds().add(encounterSectionTemplateID1);
-		II encounterSectionTemplateID2 = DatatypesFactory.eINSTANCE.createII();
-		encounterSectionTemplateID2.setRoot("2.16.840.1.113883.10.20.1.3");
-		encounterSectionTemplateID2.setAssigningAuthorityName("HL7 CCD");
-		encounterSection.getTemplateIds().add(encounterSectionTemplateID2);
-		CE encounterSectionCode = DatatypesFactory.eINSTANCE.createCE();
-		encounterSectionCode.setCode("46240-8");
-		encounterSectionCode.setCodeSystem("2.16.840.1.113883.6.1");
-		encounterSectionCode.setCodeSystemName("LOINC");
-		encounterSectionCode.setDisplayName("History of encounters");
-		encounterSection.setCode(encounterSectionCode);
 		ST encounterSectionTitle = DatatypesFactory.eINSTANCE.createST();
-		encounterSectionTitle.addText("Encounters");
+		encounterSectionTitle.addText("Visites/Fiches");
 		encounterSection.setTitle(encounterSectionTitle);
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(utils.getBorderStart());
 		buffer.append("<thead>");
 		buffer.append("<tr>");
-		buffer.append("<th style=\"text-align: left;\">Encounter Type</th>");
-		buffer.append("<th style=\"text-align: left;\">Clinicial Name</th>");
-		buffer.append("<th style=\"text-align: left;\">Location</th>");
 		buffer.append("<th style=\"text-align: left;\">Date</th>");
+		buffer.append("<th style=\"text-align: left;\">Type</th>");
 		buffer.append("</tr>");
 		buffer.append("</thead>");
 		buffer.append("<tbody>");
 		List<Encounter> encounterList = Context.getEncounterService().getEncountersByPatient(patient);
-		List<Entry> encounterEntryList = new ArrayList();
 		int i = 0;
 		
 		for (Iterator i$ = encounterList.iterator(); i$.hasNext(); ++i) {
 			Encounter encounter = (Encounter) i$.next();
-			buffer.append("<tr>");
-			buffer.append("<td><content id=\"encounterType" + i + " \">" + encounter.getEncounterType().getName()
-			        + "</content></td>");
-			Map<EncounterRole, Set<Provider>> encounterProviderMapByRole = encounter.getProvidersByRoles();
-			if (encounterProviderMapByRole.values().iterator().hasNext()) {
-				Set<Provider> encounterProviders = encounterProviderMapByRole.values().iterator().next();
-				Iterator<Provider> encounterProvideIterator = encounterProviders.iterator();
-				if (encounterProvideIterator.hasNext()) {
-					buffer.append("<td>" + encounterProvideIterator.next() + "</td>");
-				} else {
-					buffer.append("<td></td>");
-				}
-			}
 			
-			buffer.append("<td>" + encounter.getLocation() + "</td>");
 			Date date = encounter.getEncounterDatetime();
-			buffer.append("<td>" + utils.format(date) + "</td>");
-			buffer.append("</tr>");
-			Entry encounterEntry = CDAFactory.eINSTANCE.createEntry();
-			encounterEntry.setTypeCode(x_ActRelationshipEntry.DRIV);
-			org.openhealthtools.mdht.uml.cda.Encounter encounterCCD = CDAFactory.eINSTANCE.createEncounter();
-			encounterCCD.setClassCode(ActClass.ENC);
-			encounterCCD.setMoodCode(x_DocumentEncounterMood.EVN);
-			encounterEntry.setEncounter(encounterCCD);
-			II encounterTemplateID = DatatypesFactory.eINSTANCE.createII();
-			encounterTemplateID.setRoot("2.16.840.1.113883.3.88.11.83.16");
-			encounterTemplateID.setAssigningAuthorityName("HITSP C83");
-			encounterCCD.getTemplateIds().add(encounterSectionTemplateID);
-			II encounterTemplateID1 = DatatypesFactory.eINSTANCE.createII();
-			encounterTemplateID1.setRoot("2.16.840.1.113883.10.20.1.21");
-			encounterTemplateID1.setAssigningAuthorityName("CCD");
-			encounterCCD.getTemplateIds().add(encounterTemplateID1);
-			II encounterTemplateID2 = DatatypesFactory.eINSTANCE.createII();
-			encounterTemplateID2.setRoot("1.3.6.1.4.1.19376.1.5.3.1.4.14");
-			encounterTemplateID2.setAssigningAuthorityName("IHE PCC");
-			encounterCCD.getTemplateIds().add(encounterTemplateID2);
-			II encounterID = DatatypesFactory.eINSTANCE.createII();
-			encounterID.setRoot(encounter.getUuid());
-			encounterCCD.getIds().add(encounterID);
-			CD encounterActivityCode = DatatypesFactory.eINSTANCE.createCD();
-			encounterActivityCode.setNullFlavor(NullFlavor.UNK);
-			ED originalText = DatatypesFactory.eINSTANCE.createED();
-			originalText.addText("<reference value=\"#encounterType " + i + "\"/>");
-			encounterActivityCode.setOriginalText(originalText);
-			encounterCCD.setCode(encounterActivityCode);
-			ED text = DatatypesFactory.eINSTANCE.createED();
-			text.addText("<reference value=\"#encounterType" + i + "\"/>");
-			encounterCCD.setText(text);
-			IVL_TS encounterDate = DatatypesFactory.eINSTANCE.createIVL_TS();
-			Date ed = encounter.getDateCreated();
-			String edate = utils.format(ed);
-			encounterDate.setValue(edate);
-			encounterCCD.setEffectiveTime(encounterDate);
-			Performer2 encounterPerformer = CDAFactory.eINSTANCE.createPerformer2();
-			AssignedEntity encounterAssignedEntity = CDAFactory.eINSTANCE.createAssignedEntity();
-			II eid = DatatypesFactory.eINSTANCE.createII();
-			Map<EncounterRole, Set<Provider>> encounterProviderMapByRole1 = encounter.getProvidersByRoles();
-			Set<Provider> encounterProviders1 = null;
-			if (encounterProviderMapByRole1.values().iterator().hasNext()) {
-				encounterProviders1 = encounterProviderMapByRole1.values().iterator().next();
-			}
+			Date dateSixMonthsAgo = new DateTime().minusMonths(6).toDate();
 			
-			PN providerName;
-			if (encounterProviders1.size() > 0) {
-				Provider ep = encounterProviders1.iterator().next();
-				eid.setRoot(ep.getUuid());
-				encounterAssignedEntity.getIds().add(eid);
-				AD providerAddress = DatatypesFactory.eINSTANCE.createAD();
-				Person p = ep.getPerson();
-				if (p != null) {
-					Set<PersonAddress> providerAddSet = p.getAddresses();
-					if (!providerAddSet.isEmpty()) {
-						PersonAddress personAddress = providerAddSet.iterator().next();
-						providerAddress.addStreetAddressLine(personAddress.getAddress1() + personAddress.getAddress2());
-						providerAddress.addCity(personAddress.getCityVillage());
-						providerAddress.addCountry(personAddress.getCountry());
-					}
-				}
-				
-				encounterAssignedEntity.getAddrs().add(providerAddress);
-				TEL patientTelecom = DatatypesFactory.eINSTANCE.createTEL();
-				patientTelecom.setNullFlavor(NullFlavor.UNK);
-				encounterAssignedEntity.getTelecoms().add(patientTelecom);
-				org.openhealthtools.mdht.uml.cda.Person assignedProvider = CDAFactory.eINSTANCE.createPerson();
-				providerName = DatatypesFactory.eINSTANCE.createPN();
-				providerName.addText(ep.getName());
-				assignedProvider.getNames().add(providerName);
-				encounterAssignedEntity.setAssignedPerson(assignedProvider);
-				encounterPerformer.setAssignedEntity(encounterAssignedEntity);
-				encounterCCD.getPerformers().add(encounterPerformer);
+			if (date.after(dateSixMonthsAgo)) {
+				buffer.append("<tr>");
+				buffer.append("<td>" + utils.format(date) + "</td>");
+				buffer.append("<td><content id=\"encounterType" + i + " \">" + encounter.getEncounterType().getName()
+				        + "</content></td>");
+				buffer.append("</tr>");
 			}
-			
-			Participant2 participant = CDAFactory.eINSTANCE.createParticipant2();
-			participant.setTypeCode(ParticipationType.LOC);
-			II participantTemplateId = DatatypesFactory.eINSTANCE.createII();
-			participantTemplateId.setRoot("2.16.840.1.113883.10.20.1.45");
-			participant.getTemplateIds().add(participantTemplateId);
-			ParticipantRole participantRole = CDAFactory.eINSTANCE.createParticipantRole();
-			participantRole.setClassCode(RoleClassRoot.SDLOC);
-			II locationId = DatatypesFactory.eINSTANCE.createII();
-			locationId.setRoot(encounter.getLocation().getUuid());
-			locationId.setExtension(encounter.getLocation().getName());
-			participantRole.getIds().add(locationId);
-			PlayingEntity playingEntity = CDAFactory.eINSTANCE.createPlayingEntity();
-			playingEntity.setClassCode(EntityClassRoot.PLC);
-			providerName = DatatypesFactory.eINSTANCE.createPN();
-			playingEntity.getNames().add(providerName);
-			participantRole.setPlayingEntity(playingEntity);
-			participant.setParticipantRole(participantRole);
-			encounterCCD.getParticipants().add(participant);
-			encounterEntryList.add(encounterEntry);
 		}
 		
 		buffer.append("</tbody>");
@@ -459,7 +342,6 @@ public class HeaderGenerator {
 		StrucDocText encounterDetails = CDAFactory.eINSTANCE.createStrucDocText();
 		encounterDetails.addText(buffer.toString());
 		encounterSection.setText(encounterDetails);
-		encounterSection.getEntries().addAll(encounterEntryList);
 		ccd.addSection(encounterSection);
 		return ccd;
 	}

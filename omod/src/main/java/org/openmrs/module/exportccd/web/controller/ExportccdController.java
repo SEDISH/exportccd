@@ -32,6 +32,10 @@ public class ExportccdController {
 	
 	private final String H1_END = "</h1>";
 	
+	private final String H2_START = "<h2 style=\"text-align: center;\">";
+	
+	private final String H2_END = "</h2>";
+	
 	@Autowired
 	PatientSummaryExportService patientSummaryExportService;
 	
@@ -52,16 +56,26 @@ public class ExportccdController {
 		
 		String response = "";
 		
-		response += ccd.getProblemSection() != null ? H1_START + ccd.getProblemSection().getTitle().getText() + H1_END : "";
+		response += ccd.getFamilyHistorySection() != null ? H1_START + ccd.getFamilyHistorySection().getTitle().getText()
+		        + H1_END : "";
+		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getText().getText() + NEW_LINE
+		        : "";
+		
+		response += ccd.getEncountersSection() != null ? H1_START + ccd.getEncountersSection().getTitle().getText() + H1_END
+		        + H2_START + "(dernier 6 mois et première visite)" + H2_END : "";
+		response += ccd.getEncountersSection() != null ? ccd.getEncountersSection().getText().getText() + NEW_LINE : "";
+		
+		response += ccd.getProblemSection() != null ? H1_START + ccd.getProblemSection().getTitle().getText() + H1_END
+		        + H2_START + "Diagnostics médicaux" + H2_END : "";
 		response += ccd.getProblemSection() != null ? ccd.getProblemSection().getText().getText() + NEW_LINE : "";
-
+		
 		/*
 		response += ccd.getFamilyHistorySection() != null ? H1_START + ccd.getFamilyHistorySection().getTitle().getText()
 		        + H1_END : "";
 		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getText().getText() + NEW_LINE
 		        : "";
 		*/
-
+		
 		response += ccd.getSocialHistorySection() != null ? H1_START + ccd.getSocialHistorySection().getTitle().getText()
 		        + H1_END : "";
 		response += ccd.getSocialHistorySection() != null ? ccd.getSocialHistorySection().getText().getText() + NEW_LINE
@@ -80,10 +94,6 @@ public class ExportccdController {
 		response += ccd.getProceduresSection() != null ? H1_START + ccd.getProceduresSection().getTitle().getText() + H1_END
 		        : "";
 		response += ccd.getProceduresSection() != null ? ccd.getProceduresSection().getText().getText() + NEW_LINE : "";
-		
-		response += ccd.getEncountersSection() != null ? H1_START + ccd.getEncountersSection().getTitle().getText() + H1_END
-		        : "";
-		response += ccd.getEncountersSection() != null ? ccd.getEncountersSection().getText().getText() + NEW_LINE : "";
 		
 		response += ccd.getPlanOfCareSection() != null ? H1_START + ccd.getPlanOfCareSection().getTitle().getText() + H1_END
 		        : "";
