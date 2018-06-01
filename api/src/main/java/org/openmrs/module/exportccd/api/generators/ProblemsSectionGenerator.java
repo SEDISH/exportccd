@@ -20,11 +20,9 @@ import java.util.List;
 @Component
 public class ProblemsSectionGenerator {
 	
-	private static final int PROBLEMS_CONCEPT_ID = 159947;
+	private static final int PROBLEM_START_CONCEPT_ID = 6042;
 	
-	private static final int PROBLEM_CONCEPT_ID = 1284;
-	
-	private static final int STATUS_CONCEPT_ID = 159394;
+	private static final int PROBLEM_END_CONCEPT_ID = 6097;
 	
 	@Autowired
 	private ExportCcdUtils utils;
@@ -32,35 +30,34 @@ public class ProblemsSectionGenerator {
 	public ContinuityOfCareDocument buildProblems(ContinuityOfCareDocument ccd, Patient patient) {
 		ProblemSection problemSection = CCDFactory.eINSTANCE.createProblemSection();
 		ccd.addSection(problemSection);
-		problemSection.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.3.88.11.83.103", "", "HITSP/C83"));
-		problemSection.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.3.6", "", "IHE PCC"));
-		problemSection.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.11", "", "HL7 CCD"));
-		problemSection.setCode(utils.buildCodeCE("11450-4", "2.16.840.1.113883.6.1", "Problem list", "LOINC"));
-		problemSection.setTitle(utils.buildST("Problems"));
-		CE problemCode = DatatypesFactory.eINSTANCE.createCE();
-		problemCode.setNullFlavor(NullFlavor.NA);
+		problemSection.setTitle(utils.buildST("Liste des Problèmes"));
 		
-		StringBuilder builder = utils.buildSectionHeader("Problem", "Date", "Status");
+		StringBuilder builder = utils.buildSectionHeader("Diagnostic", "Date de début", "Date de dernier diagnostic",
+		    "Actif", "Guéri");
 		
-		List<Obs> observations = Context.getObsService().getObservationsByPersonAndConcept(patient,
-		    Context.getConceptService().getConcept(PROBLEMS_CONCEPT_ID));
-		for (Obs obs : observations) {
-			List<Obs> group = Context.getObsService().findObsByGroupId(obs.getId());
-			String name = "";
-			String status = "";
-			for (Obs obs2 : group) {
-				switch (obs2.getConcept().getId()) {
-					case PROBLEM_CONCEPT_ID:
-						name = obs2.getValueCoded().getDisplayString();
-						break;
-					case STATUS_CONCEPT_ID:
-						status = obs2.getValueCoded().getDisplayString();
-						break;
+		List<Obs> startedProblems = Context.getObsService().getObservationsByPersonAndConcept(patient,
+		    Context.getConceptService().getConcept(PROBLEM_START_CONCEPT_ID));
+		
+		List<Obs> endedProblems = Context.getObsService().getObservationsByPersonAndConcept(patient,
+		    Context.getConceptService().getConcept(PROBLEM_END_CONCEPT_ID));
+		
+		for (Obs obs : startedProblems) {
+			String startDate = utils.format(obs.getObsDatetime());
+			String problem = obs.getValueCoded().getDisplayString();
+			String endDate = "";
+			String activeStr = "[X]";
+			String inactiveStr = "[ ]";
+			
+			for (Obs endedProblem : endedProblems) {
+				if (endedProblem.getValueCoded().getDisplayString().equals(problem)) {
+					endDate = utils.format(endedProblem.getObsDatetime());
+					inactiveStr = "[X]";
+					activeStr = "[ ]";
+					break;
 				}
 			}
 			
-			builder.append(utils.buildSectionContent(name, utils.format(obs.getObsDatetime()), status));
-			
+			builder.append(utils.buildSectionContent(problem, startDate, endDate, activeStr, inactiveStr));
 		}
 		
 		builder.append(utils.buildSectionFooter());
