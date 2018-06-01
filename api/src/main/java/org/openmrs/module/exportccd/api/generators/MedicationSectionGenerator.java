@@ -12,6 +12,7 @@ import org.openmrs.module.exportccd.api.utils.ExportCcdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -19,11 +20,15 @@ public class MedicationSectionGenerator {
 	
 	private static final int DRUGS_CONCEPT_ID = 1442;
 	
+	private static final int DRUGS_CONSTRUCT_CONCEPT_ID = 163711;
+	
 	private static final int DOSE_CONCEPT_ID = 1444;
 	
 	private static final int DRUG_NAME_CONCEPT_ID = 1282;
 	
 	private static final int DURATION_CONCEPT_ID = 159368;
+	
+	private static final int DISPENSE_DATE_CONCEPT_ID = 1276;
 	
 	@Autowired
 	private ExportCcdUtils utils;
@@ -47,15 +52,20 @@ public class MedicationSectionGenerator {
 	}
 	
 	private String generateDrugSectionContent(Patient patient) {
-		StringBuilder builder = utils.buildSectionHeader("Medication", "Date", "Dose", "Days");
+		StringBuilder builder = utils.buildSecondHeaderRow("Medication/Posologie", "Début", "Fin",
+		    "Dernier dt. de dispens.", "Dur. (journées)", "Tox", "Int", "Ech", "Inc");
 		
 		List<Obs> observations = Context.getObsService().getObservationsByPersonAndConcept(patient,
 		    Context.getConceptService().getConcept(DRUGS_CONCEPT_ID));
+		List<Obs> constructObservations = Context.getObsService().getObservationsByPersonAndConcept(patient,
+		    Context.getConceptService().getConcept(DRUGS_CONSTRUCT_CONCEPT_ID));
 		for (Obs obs : observations) {
 			List<Obs> group = Context.getObsService().findObsByGroupId(obs.getId());
+			List<Obs> constructGroup = new ArrayList<Obs>();
 			String dose = "";
 			String name = "";
-			String duration = "";
+			String days = "-";
+			String dispenseDate = "-";
 			for (Obs obs2 : group) {
 				switch (obs2.getConcept().getId()) {
 					case DOSE_CONCEPT_ID:
@@ -63,13 +73,32 @@ public class MedicationSectionGenerator {
 						break;
 					case DRUG_NAME_CONCEPT_ID:
 						name = obs2.getValueCoded().getDisplayString();
+						
+						for (Obs consObs : constructObservations) {
+							List<Obs> consGroup = Context.getObsService().findObsByGroupId(consObs.getId());
+							for (Obs consObs2 : consGroup) {
+								if (consObs2.getConcept().getId().equals(DRUG_NAME_CONCEPT_ID)
+								        && consObs2.getValueCoded().getDisplayString().equals(name)) {
+									constructGroup = consGroup;
+								}
+							}
+						}
+						
 						break;
 					case DURATION_CONCEPT_ID:
-						duration = String.valueOf(obs2.getValueNumeric());
+						days = String.valueOf(obs2.getValueNumeric());
 				}
 			}
 			
-			builder.append(utils.buildSectionContent(name, utils.format(obs.getObsDatetime()), dose, duration));
+			for (Obs obs2 : constructGroup) {
+				switch (obs2.getConcept().getId()) {
+					case DISPENSE_DATE_CONCEPT_ID:
+						dispenseDate = utils.format(obs2.getObsDatetime());
+				}
+			}
+			
+			builder.append(utils.buildSectionContent(name + " " + dose, utils.format(obs.getObsDatetime()), "-",
+			    dispenseDate, days, "[ ]", "[ ]", "[ ]", "[ ]"));
 		}
 		
 		builder.append(utils.buildSectionFooter());

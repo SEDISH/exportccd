@@ -50,7 +50,7 @@ public class SocialHistorySectionGenerator {
 		historyList.add(Context.getConceptService().getConcept(POINT_OF_HIV_TESTING_CONCEPT_ID));
 		historyList.add(Context.getConceptService().getConcept(METHOD_OD_FAMILY_PLANNING_CONCEPT_ID));
 		historyList.add(Context.getConceptService().getConcept(METHOD_OD_HIV_EXPOSURE_CONCEPT_ID));
-
+		
 		historyList.add(Context.getConceptService().getConcept(TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID));
 		historyList.add(Context.getConceptService().getConcept(DURATION_CONCEPT_ID));
 		

@@ -162,6 +162,39 @@ public class ExportCcdUtils {
 		return builder;
 	}
 	
+	public StringBuilder buildFirstHeaderRow(String... elements) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append(getBorderStart());
+		builder.append("<thead>");
+		builder.append("<tr>");
+		
+		for (String element : elements) {
+			builder.append("<th style=\"text-align: left;\">").append(element).append("</th>");
+		}
+		
+		builder.append("</tr>");
+		
+		return builder;
+	}
+	
+	public StringBuilder buildSecondHeaderRow(String... elements) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append(getBorderStart());
+		builder.append("<tr>");
+		
+		for (String element : elements) {
+			builder.append("<th style=\"text-align: left;\">").append(element).append("</th>");
+		}
+		
+		builder.append("</tr>");
+		builder.append("</thead>");
+		builder.append("<tbody>");
+		
+		return builder;
+	}
+	
 	public String buildSectionContent(String... elements) {
 		StringBuilder builder = new StringBuilder();
 		
@@ -186,6 +219,6 @@ public class ExportCcdUtils {
 	}
 	
 	public String getBorderStart() {
-		return "<table style=\"margin-left: auto; margin-right: auto;\" border=\"0\" width=\"80%\">";
+		return "<table style=\"margin-left: auto; margin-right: auto;\" border=\"0\" width=\"60%\">";
 	}
 }
