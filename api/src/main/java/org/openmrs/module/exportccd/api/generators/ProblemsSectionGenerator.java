@@ -44,7 +44,7 @@ public class ProblemsSectionGenerator {
 		for (Obs obs : startedProblems) {
 			String startDate = utils.format(obs.getObsDatetime());
 			String problem = obs.getValueCoded().getDisplayString();
-			String endDate = "";
+			String endDate = "-";
 			String activeStr = "[X]";
 			String inactiveStr = "[ ]";
 			
