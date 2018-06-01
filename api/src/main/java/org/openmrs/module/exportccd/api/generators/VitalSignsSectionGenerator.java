@@ -45,7 +45,7 @@ import java.util.TreeSet;
 @Component
 public class VitalSignsSectionGenerator {
 	
-	private static final int VITAL_SIGNS_CONCEPT_ID = 1114;
+	private static final Integer WEIGHT_CONCEPT_ID = 5089;
 	
 	@Autowired
 	private ExportCcdUtils utils;
@@ -61,138 +61,23 @@ public class VitalSignsSectionGenerator {
 		section.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.3.25", "", "IHE PCC"));
 		section.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.16", "", "HL7 CCD"));
 		section.setCode(utils.buildCodeCE("8716-3", "2.16.840.1.113883.6.1", "Vital signs", "LOINC"));
-		section.setTitle(utils.buildST("Vital Signs"));
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(utils.getBorderStart());
-		buffer.append("<thead>");
-		buffer.append("<tr>");
-		buffer.append("<th style=\"text-align: left;\">Date</th>");
-		List<Concept> vitalSignsList = new ArrayList();
-		vitalSignsList.add(Context.getConceptService().getConcept(VITAL_SIGNS_CONCEPT_ID));
-		List<Obs> listOfObservations = new ArrayList();
-		Map<String, String> vitalSignData = new HashMap();
-		Set<Concept> observedConceptList = new HashSet();
-		Set<Date> dateSet = new HashSet();
+		section.setTitle(utils.buildST("Examen Clinique"));
 		
-		Iterator i$ = vitalSignsList.iterator();
-		while (i$.hasNext()) {
-			Concept concept = (Concept) i$.next();
-			if (concept.isSet()) {
-				List<Concept> conceptSet = concept.getSetMembers();
-				System.out.println(conceptSet);
-				i$ = conceptSet.iterator();
-				
-				while (i$.hasNext()) {
-					Concept conceptSet2 = (Concept) i$.next();
-					listOfObservations.addAll(Context.getObsService()
-					        .getObservationsByPersonAndConcept(patient, conceptSet2));
-					observedConceptList.add(conceptSet2);
-				}
-			} else {
-				listOfObservations.addAll(Context.getObsService().getObservationsByPersonAndConcept(patient, concept));
-				observedConceptList.add(concept);
+		StringBuilder builder = new StringBuilder();
+
+		ConceptNumeric weight = Context.getConceptService().getConceptNumeric(WEIGHT_CONCEPT_ID);
+		List<Obs> listOfObservations = utils.extractObservations(patient, weight);
+		if (!listOfObservations.isEmpty()) {
+			String element = weight.getDisplayString();
+			builder.append(utils.buildSectionHeader("Résultat", "Unité", "Date"));
+			for (Obs obs : listOfObservations) {
+				String value = obs.getValueNumeric().toString();
+				String date = obs.getDateCreated().toString();
+				builder.append(utils.buildSectionContent(value, weight.getUnits(), date));
 			}
 		}
-		
-		i$ = listOfObservations.iterator();
-		
-		Date date;
-		while (i$.hasNext()) {
-			Obs obs = (Obs) i$.next();
-			date = obs.getObsDatetime();
-			dateSet.add(date);
-			if (vitalSignData.containsKey(date)) {
-				String data = vitalSignData.get(date);
-				data = data + "," + obs.getId();
-				vitalSignData.put(date + obs.getConcept().getId().toString(), data);
-			} else {
-				vitalSignData.put(date + obs.getConcept().getId().toString(), obs.getId().toString());
-			}
-		}
-		
-		System.out.println(vitalSignData);
-		SortedSet<Date> sortedSet = new TreeSet(Collections.reverseOrder());
-		sortedSet.addAll(dateSet);
-		i$ = sortedSet.iterator();
-		
-		while (i$.hasNext()) {
-			date = (Date) i$.next();
-			buffer.append("<th style=\"text-align: left;\">" + utils.format(date) + "</th>");
-		}
-		
-		buffer.append("</tr>");
-		buffer.append("</thead>");
-		buffer.append("<tbody>");
-		i$ = observedConceptList.iterator();
-		
-		while (i$.hasNext()) {
-			Concept concept = (Concept) i$.next();
-			buffer.append("<tr>");
-			buffer.append("<td><content Id= \"" + concept.getDisplayString() + "\">" + concept.getDisplayString()
-			        + "</content></td>");
-			i$ = sortedSet.iterator();
-			
-			while (i$.hasNext()) {
-				date = (Date) i$.next();
-				if (vitalSignData.containsKey(date + "" + concept)) {
-					ConceptNumeric c = Context.getConceptService().getConceptNumeric(concept.getId());
-					String obsId = vitalSignData.get(date + "" + concept);
-					Obs obs = Context.getObsService().getObs(Integer.parseInt(obsId));
-					buffer.append("<td>" + obs.getValueNumeric() + c.getUnits() + "</td>");
-					Entry vitalSignEntry = CDAFactory.eINSTANCE.createEntry();
-					vitalSignEntry.setTypeCode(x_ActRelationshipEntry.DRIV);
-					Organizer organizer = CDAFactory.eINSTANCE.createOrganizer();
-					organizer.setClassCode(x_ActClassDocumentEntryOrganizer.CLUSTER);
-					organizer.setMoodCode(ActMood.EVN);
-					organizer.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.13.1", "", "IHE PCC"));
-					organizer.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.32", "", "CCD"));
-					organizer.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.35", "", "CCD"));
-					organizer.getIds().add(utils.buildID(obs.getUuid(), ""));
-					organizer.setCode(utils.buildCode("46680005", "2.16.840.1.113883.6.96", "Vital signs", "SNOMED-CT"));
-					CS statusCode = DatatypesFactory.eINSTANCE.createCS();
-					statusCode.setCode("completed");
-					organizer.setStatusCode(statusCode);
-					organizer.setEffectiveTime(utils.buildEffectiveTimeinIVL(date, null));
-					Component4 component = CDAFactory.eINSTANCE.createComponent4();
-					Observation observation = CDAFactory.eINSTANCE.createObservation();
-					observation.setClassCode(ActClassObservation.OBS);
-					observation.setMoodCode(x_ActMoodDocumentObservation.EVN);
-					observation.getTemplateIds().add(
-					    utils.buildTemplateID("2.16.840.1.113883.3.88.11.83.14", "", "HITSP C83"));
-					observation.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.31", "", "CCD"));
-					observation.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.13", "", "IHE PCC"));
-					observation.getIds().add(utils.buildID(obs.getUuid(), ""));
-					observation.setCode(utils.buildConceptCode(concept, "SNOMED", "LOINC"));
-					observation.setText(utils.buildEDText("#" + concept.getDisplayString()));
-					CS statusCode1 = DatatypesFactory.eINSTANCE.createCS();
-					statusCode1.setCode("completed");
-					observation.setStatusCode(statusCode1);
-					observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), null));
-					PQ unit = DatatypesFactory.eINSTANCE.createPQ();
-					unit.setUnit(c.getUnits());
-					unit.setValue(obs.getValueNumeric());
-					observation.getValues().add(unit);
-					ReferenceRange conceptRange = CDAFactory.eINSTANCE.createReferenceRange();
-					ObservationRange observationRange = CDAFactory.eINSTANCE.createObservationRange();
-					observationRange.setNullFlavor(NullFlavor.UNK);
-					conceptRange.setObservationRange(observationRange);
-					observation.getReferenceRanges().add(conceptRange);
-					component.setObservation(observation);
-					organizer.getComponents().add(component);
-					vitalSignEntry.setOrganizer(organizer);
-					section.getEntries().add(vitalSignEntry);
-				} else {
-					buffer.append("<td></td>");
-				}
-			}
-			
-			buffer.append("</tr>");
-		}
-		
-		buffer.append("</tbody>");
-		buffer.append("</table>");
 		StrucDocText details = CDAFactory.eINSTANCE.createStrucDocText();
-		details.addText(buffer.toString());
+		details.addText(builder.toString());
 		section.setText(details);
 		return ccd;
 	}

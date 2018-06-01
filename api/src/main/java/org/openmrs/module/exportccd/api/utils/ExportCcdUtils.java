@@ -11,17 +11,61 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openmrs.Concept;
 import org.openmrs.ConceptMap;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.exportccd.api.generators.SocialHistorySectionGenerator;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 @Component
 public class ExportCcdUtils {
 	
 	SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy");
+	
+	public List<Obs> extractObservations(Patient patient, Concept concept) {
+		List<Obs> listOfObservations = new ArrayList<Obs>();
+		if (concept.isSet()) {
+			for (Concept conceptSet : concept.getSetMembers()) {
+				listOfObservations.addAll(Context.getObsService().getObservationsByPersonAndConcept(patient, conceptSet));
+			}
+		} else {
+			listOfObservations.addAll(Context.getObsService().getObservationsByPersonAndConcept(patient, concept));
+		}
+		return listOfObservations;
+	}
+	
+	public void buildSubsection(Patient patient, StringBuilder builder, int conceptId, String sectionHeader) {
+		
+		Concept concept = Context.getConceptService().getConcept(conceptId);
+		List<Obs> listOfObservations = extractObservations(patient, concept);
+		if (!listOfObservations.isEmpty()) {
+			builder.append(buildSectionHeader(sectionHeader));
+			for (Obs obs : listOfObservations) {
+				buildRow(builder, obs);
+			}
+		}
+	}
+	
+	public void buildRow(StringBuilder builder, Obs obs) {
+		if (obs.getValueNumeric() != null) {
+			String conceptName = obs.getConcept().getDisplayString();
+			String value = obs.getValueNumeric().toString();
+			builder.append(buildSectionContent(conceptName, value));
+		} else if (obs.getValueDatetime() != null) {
+			String conceptName = obs.getConcept().getDisplayString();
+			String value = obs.getValueDatetime().toString();
+			builder.append(buildSectionContent(conceptName, value));
+		} else if (obs.getValueCoded() != null) {
+			builder.append(buildSectionContent(obs.getValueCoded().getDisplayString()));
+		}
+	}
 	
 	public String format(Date date) {
 		return s.format(date);
