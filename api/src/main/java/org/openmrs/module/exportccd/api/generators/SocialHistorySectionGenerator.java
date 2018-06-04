@@ -53,17 +53,17 @@ public class SocialHistorySectionGenerator {
 			String element = pointOfHiv.getDisplayString();
 			builder.append(utils.buildSectionContent("<b>" + element + "</b>"));
 			for (Obs obs : listOfObservations) {
-				utils.buildRow(builder, obs);
+				builder.append(utils.buildRow(obs));
 			}
 		}
-		
-		utils.buildSubsection(patient, builder, METHOD_OD_HIV_EXPOSURE_CONCEPT_ID, "Mode probable de transmission");
-		utils.buildSubsection(patient, builder, OBSTETRIC_HISTORY_ID, "Antécédents Obstétriques et Grossesse");
-		utils.buildSubsection(patient, builder, METHOD_OD_FAMILY_PLANNING_CONCEPT_ID, "Planning familial");
-		utils.buildSubsection(patient, builder, TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID, "Statut de TB");
-		utils.buildSubsection(patient, builder, ARV_ID, "Eligibilité Médical aux ARV");
-		
 		builder.append(utils.buildSectionFooter());
+		
+		builder.append(utils.buildSubsection(patient, METHOD_OD_HIV_EXPOSURE_CONCEPT_ID, "Mode probable de "
+		        + "transmission"));
+		builder.append(utils.buildSubsection(patient, OBSTETRIC_HISTORY_ID, "Antécédents Obstétriques et Grossesse"));
+		builder.append(utils.buildSubsection(patient, METHOD_OD_FAMILY_PLANNING_CONCEPT_ID, "Planning familial"));
+		builder.append(utils.buildSubsection(patient, TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID, "Statut de TB"));
+		builder.append(utils.buildSubsection(patient, ARV_ID, "Eligibilité Médical aux ARV"));
 		
 		details.addText(builder.toString());
 		section.setText(details);

@@ -53,7 +53,7 @@ public class FamilyHistorySectionGenerator {
 		builder.append(utils.buildSectionContent("Addresse, Commune:", person.getPersonAddress().getAddress1() == null ? "-"
 		        : person.getPersonAddress().getAddress1()));
 		builder.append(utils.buildSectionContent("Section, communale:",
-		    person.getPersonAddress().getCountyDistrict() == null ? "" : person.getPersonAddress().getCountyDistrict()));
+		    person.getPersonAddress().getCountyDistrict() == null ? "-" : person.getPersonAddress().getCountyDistrict()));
 		builder.append(utils.buildSectionContent("Localité", person.getPersonAddress().getCityVillage() == null ? "-"
 		        : person.getPersonAddress().getCityVillage()));
 		builder.append(utils.buildSectionContent("Lieu de naissance:", person.getAttribute(BIRTHPLACE) == null ? "-"
@@ -64,7 +64,7 @@ public class FamilyHistorySectionGenerator {
 		builder.append(utils.buildSectionContent("Statut martial:", person.getAttribute(CIVIL_STATUS) == null ? "-" : person
 		        .getAttribute(CIVIL_STATUS).getValue()));
 		String birthdate = person.getBirthdateEstimated() == true ? "~" : "";
-		birthdate += person.getBirthdate().toString() == null ? "-" : person.getBirthdate().toString();
+		birthdate += person.getBirthdate().toString() == null ? "-" : utils.format(person.getBirthdate());
 		builder.append(utils.buildSectionContent("Date de naissance:", birthdate));
 		builder.append(utils.buildSectionContent("Prénom de la mère:",
 		    person.getAttribute(FIRST_NAME_OF_MOTHER) == null ? "-" : person.getAttribute(FIRST_NAME_OF_MOTHER).getValue()));

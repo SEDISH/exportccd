@@ -83,8 +83,6 @@ public class ExportccdController {
 		response += ccd.getMedicationsSection() != null ? ccd.getMedicationsSection().getText().getText() + NEW_LINE
 		        + NEW_LINE : "";
 		
-		//		response += ccd.getResultsSection() != null ? H1_START + ccd.getResultsSection().getTitle().getText() + H1_END : "";
-		//		response += ccd.getResultsSection() != null ? ccd.getResultsSection().getText().getText() + NEW_LINE + NEW_LINE : "";
 		//
 		//		response += ccd.getProceduresSection() != null ? H1_START + ccd.getProceduresSection().getTitle().getText() + H1_END
 		//		        : "";
@@ -99,10 +97,10 @@ public class ExportccdController {
 		//		response += ccd.getImmunizationsSection() != null ? ccd.getImmunizationsSection().getText().getText() + NEW_LINE + NEW_LINE
 		//		        : "";
 		
-//		response += ccd.getVitalSignsSection() != null ? H1_START + ccd.getVitalSignsSection().getTitle().getText() + H1_END
-//		        : "";
-//		response += ccd.getVitalSignsSection() != null ? ccd.getVitalSignsSection().getText().getText() + NEW_LINE
-//		        + NEW_LINE : "";
+		response += ccd.getVitalSignsSection() != null ? H1_START + ccd.getVitalSignsSection().getTitle().getText() + H1_END
+		        : "";
+		response += ccd.getVitalSignsSection() != null ? ccd.getVitalSignsSection().getText().getText() + NEW_LINE
+		        + NEW_LINE : "";
 		
 		//		response += ccd.getMedicalEquipmentSection() != null ? H1_START
 		//		        + ccd.getMedicalEquipmentSection().getTitle().getText() + H1_END : "";
@@ -124,6 +122,9 @@ public class ExportccdController {
 		//
 		//		response += ccd.getPurposeSection() != null ? H1_START + ccd.getPurposeSection().getTitle().getText() + H1_END : "";
 		//		response += ccd.getPurposeSection() != null ? ccd.getPurposeSection().getText().getText() + NEW_LINE + NEW_LINE : "";
+		
+		response += ccd.getResultsSection() != null ? H1_START + ccd.getResultsSection().getTitle().getText() + H1_END : "";
+		response += ccd.getResultsSection() != null ? ccd.getResultsSection().getText().getText() + NEW_LINE + NEW_LINE : "";
 		
 		return response + "</body></html>";
 	}

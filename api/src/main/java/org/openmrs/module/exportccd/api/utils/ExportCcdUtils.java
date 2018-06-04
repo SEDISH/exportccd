@@ -17,6 +17,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.exportccd.api.generators.SocialHistorySectionGenerator;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,19 +42,22 @@ public class ExportCcdUtils {
 		return listOfObservations;
 	}
 	
-	public void buildSubsection(Patient patient, StringBuilder builder, int conceptId, String sectionHeader) {
-		
+	public String buildSubsection(Patient patient, int conceptId, String sectionHeader) {
+		StringBuilder builder = new StringBuilder();
 		Concept concept = Context.getConceptService().getConcept(conceptId);
 		List<Obs> listOfObservations = extractObservations(patient, concept);
 		if (!listOfObservations.isEmpty()) {
 			builder.append(buildSectionHeader(sectionHeader));
 			for (Obs obs : listOfObservations) {
-				buildRow(builder, obs);
+				builder.append(buildRow(obs));
 			}
+			builder.append(buildSectionFooter());
 		}
+		return builder.toString();
 	}
 	
-	public void buildRow(StringBuilder builder, Obs obs) {
+	public String buildRow(Obs obs) {
+		StringBuilder builder = new StringBuilder();
 		if (obs.getValueNumeric() != null) {
 			String conceptName = obs.getConcept().getDisplayString();
 			String value = obs.getValueNumeric().toString();
@@ -65,10 +69,16 @@ public class ExportCcdUtils {
 		} else if (obs.getValueCoded() != null) {
 			builder.append(buildSectionContent(obs.getValueCoded().getDisplayString()));
 		}
+		builder.append(buildEmptyLine());
+		return builder.toString();
 	}
 	
 	public String format(Date date) {
 		return s.format(date);
+	}
+	
+	public Date parse(String dateText) throws ParseException {
+		return s.parse(dateText);
 	}
 	
 	public ST buildST(String title) {
@@ -264,5 +274,17 @@ public class ExportCcdUtils {
 	
 	public String getBorderStart() {
 		return "<table style=\"margin-left: auto; margin-right: auto;\" border=\"0\" width=\"60%\">";
+	}
+	
+	public String buildEmptyLine() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("</br>");
+		return builder.toString();
+	}
+	
+	public String buildSubTitle(String subTitle) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("<h3 style=\"text-align: center;\">" + subTitle + "</h3>");
+		return builder.toString();
 	}
 }
