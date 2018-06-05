@@ -9,6 +9,7 @@ import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.ccd.FamilyHistorySection;
 import org.openmrs.Patient;
 import org.openmrs.Person;
+import java.util.Date;
 import org.openmrs.module.exportccd.api.utils.ExportCcdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,10 +34,9 @@ public class FamilyHistorySectionGenerator {
 		section.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.4", "", "CCD"));
 		section.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.3.14", "", "IHE PCC"));
 		section.setCode(utils.buildCodeCE("10157-6", "2.16.840.1.113883.6.1", "History of family member diseases", "LOINC"));
-		section.setTitle(utils.buildST("Informations Démographiques"));
+		section.setTitle(utils.buildST("Resumé du dossier médical"));
 		StrucDocText details = CDAFactory.eINSTANCE.createStrucDocText();
-		
-		StringBuilder builder = utils.buildSectionHeader();
+		StringBuilder builder = new StringBuilder();
 		
 		Person person = patient.getPerson();
 		
@@ -48,13 +48,22 @@ public class FamilyHistorySectionGenerator {
 		}
 		nameRow.append(", ");
 		nameRow.append(person.getFamilyName());
+		builder.append(utils.buildSectionHeader());
+		builder.append(String.format("<tr><td>%s</td><td style=\"text-align: right\">Sommaire du patient pour:</br>%s</td></tr>",
+		    utils.formatWithTime(new Date()), nameRow.toString()));
+		builder.append(utils.buildSectionFooter());
+		builder.append(utils.buildTitle("Resumé de dossier médical"));
+		builder.append(utils.buildSubTitle("Informations Démographiques"));
+		
+		builder.append(utils.buildSectionHeader());
+		
 		builder.append(utils.buildSectionContent("Nom:", nameRow.toString()));
 		
 		builder.append(utils.buildSectionContent("Addresse, Commune:", person.getPersonAddress().getAddress1() == null ? "-"
 		        : person.getPersonAddress().getAddress1()));
 		builder.append(utils.buildSectionContent("Section, communale:",
 		    person.getPersonAddress().getCountyDistrict() == null ? "-" : person.getPersonAddress().getCountyDistrict()));
-		builder.append(utils.buildSectionContent("Localité", person.getPersonAddress().getCityVillage() == null ? "-"
+		builder.append(utils.buildSectionContent("Localité:", person.getPersonAddress().getCityVillage() == null ? "-"
 		        : person.getPersonAddress().getCityVillage()));
 		builder.append(utils.buildSectionContent("Lieu de naissance:", person.getAttribute(BIRTHPLACE) == null ? "-"
 		        : person.getAttribute(BIRTHPLACE).getValue()));

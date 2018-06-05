@@ -11,6 +11,7 @@ package org.openmrs.module.exportccd.web.controller;
 
 import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
 import org.openmrs.module.exportccd.api.PatientSummaryExportService;
+import org.openmrs.module.exportccd.api.utils.ExportCcdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Date;
 
 @Controller("exportccd.ExportccdController")
 @RequestMapping(value = "/rest/exportccd/", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,6 +42,9 @@ public class ExportccdController {
 	@Autowired
 	PatientSummaryExportService patientSummaryExportService;
 	
+	@Autowired
+	private ExportCcdUtils utils;
+	
 	@ResponseBody
 	@RequestMapping(value = "/ccd/{patientECID}", method = RequestMethod.GET)
 	public ResponseEntity<String> getCCD(@PathVariable String patientECID) {
@@ -56,8 +62,6 @@ public class ExportccdController {
 		
 		String response = "<html><body style=\"font-family: monospace\">";
 		
-		response += ccd.getFamilyHistorySection() != null ? H1_START + ccd.getFamilyHistorySection().getTitle().getText()
-		        + H1_END : "";
 		response += ccd.getFamilyHistorySection() != null ? ccd.getFamilyHistorySection().getText().getText() + NEW_LINE
 		        + NEW_LINE : "";
 		

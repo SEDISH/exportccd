@@ -2,6 +2,7 @@ package org.openmrs.module.exportccd.api.generators;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openhealthtools.mdht.uml.cda.CDAFactory;
+import org.openhealthtools.mdht.uml.cda.Observation;
 import org.openhealthtools.mdht.uml.cda.StrucDocText;
 import org.openhealthtools.mdht.uml.cda.ccd.CCDFactory;
 import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
@@ -56,17 +57,25 @@ public class LabResultsSectionGenerator {
 	}
 	
 	private String getValueOfObs(Patient patient, Obs obs) {
-		//TODO: verify if no data is skipped
-		Obs tmp = Context
-		        .getObsService()
-		        .getObservationsByPersonAndConcept(patient,
-		            Context.getConceptService().getConcept(obs.getValueCoded().getConceptId())).get(0);
-		if (tmp.getValueNumeric() != null) {
-			return tmp.getValueNumeric().toString();
-		} else if (tmp.getValueCoded() != null) {
-			return tmp.getValueCoded().getDisplayString();
-		} else if (tmp.getValueBoolean() != null) {
-			return tmp.getValueBoolean() ? "Oui" : "Non";
+		Obs observation = null;
+		List<Obs> relatedObservations = Context.getObsService().getObservationsByPersonAndConcept(patient,
+		    Context.getConceptService().getConcept(obs.getValueCoded().getConceptId()));
+		for (Obs tmp : relatedObservations) {
+			if (tmp.getObsDatetime().equals(obs.getObsDatetime())) {
+				observation = tmp;
+				break;
+			}
+		}
+		return observation == null ? "-" : extractObsProperValue(observation);
+	}
+	
+	private String extractObsProperValue(Obs observation) {
+		if (observation.getValueNumeric() != null) {
+			return observation.getValueNumeric().toString();
+		} else if (observation.getValueCoded() != null) {
+			return observation.getValueCoded().getDisplayString();
+		} else if (observation.getValueBoolean() != null) {
+			return observation.getValueBoolean() ? "Oui" : "Non";
 		} else {
 			return "-";
 		}

@@ -14,7 +14,6 @@ import org.openmrs.ConceptMap;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.exportccd.api.generators.SocialHistorySectionGenerator;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
@@ -28,7 +27,9 @@ import java.util.List;
 @Component
 public class ExportCcdUtils {
 	
-	SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy");
+	SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+	
+	SimpleDateFormat dateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss (zzz)");
 	
 	public List<Obs> extractObservations(Patient patient, Concept concept) {
 		List<Obs> listOfObservations = new ArrayList<Obs>();
@@ -62,23 +63,30 @@ public class ExportCcdUtils {
 			String conceptName = obs.getConcept().getDisplayString();
 			String value = obs.getValueNumeric().toString();
 			builder.append(buildSectionContent(conceptName, value));
+			builder.append(buildEmptyLine());
+			
 		} else if (obs.getValueDatetime() != null) {
 			String conceptName = obs.getConcept().getDisplayString();
 			String value = obs.getValueDatetime().toString();
 			builder.append(buildSectionContent(conceptName, value));
+			builder.append(buildEmptyLine());
 		} else if (obs.getValueCoded() != null) {
 			builder.append(buildSectionContent(obs.getValueCoded().getDisplayString()));
+			builder.append(buildEmptyLine());
 		}
-		builder.append(buildEmptyLine());
 		return builder.toString();
 	}
 	
 	public String format(Date date) {
-		return s.format(date);
+		return this.date.format(date);
+	}
+	
+	public String formatWithTime(Date date) {
+		return this.dateTime.format(date);
 	}
 	
 	public Date parse(String dateText) throws ParseException {
-		return s.parse(dateText);
+		return date.parse(dateText);
 	}
 	
 	public ST buildST(String title) {
@@ -185,13 +193,13 @@ public class ExportCcdUtils {
 	
 	public IVL_TS buildEffectiveTimeinIVL(Date d, Date d1) {
 		IVL_TS effectiveTime = DatatypesFactory.eINSTANCE.createIVL_TS();
-		String creationDate = this.s.format(d);
+		String creationDate = this.date.format(d);
 		IVXB_TS low = DatatypesFactory.eINSTANCE.createIVXB_TS();
 		low.setValue(creationDate);
 		effectiveTime.setLow(low);
 		IVXB_TS high = DatatypesFactory.eINSTANCE.createIVXB_TS();
 		if (d1 != null) {
-			high.setValue(this.s.format(d1));
+			high.setValue(this.date.format(d1));
 		}
 		
 		effectiveTime.setHigh(high);
@@ -273,12 +281,18 @@ public class ExportCcdUtils {
 	}
 	
 	public String getBorderStart() {
-		return "<table style=\"margin-left: auto; margin-right: auto;\" border=\"0\" width=\"60%\">";
+		return "<table style=\"margin-left: auto; margin-right: auto;\" cellpadding=\"6\" border=\"0\" width=\"60%\">";
 	}
 	
 	public String buildEmptyLine() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("</br>");
+		return builder.toString();
+	}
+	
+	public String buildTitle(String title) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("<h1 style=\"text-align: center;\">" + title + "</h3>");
 		return builder.toString();
 	}
 	

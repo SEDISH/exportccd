@@ -45,13 +45,11 @@ public class SocialHistorySectionGenerator {
 		StrucDocText details = CDAFactory.eINSTANCE.createStrucDocText();
 		
 		StringBuilder builder = new StringBuilder();
-		builder.append(utils.buildSectionHeader());
 		
 		Concept pointOfHiv = Context.getConceptService().getConcept(POINT_OF_HIV_TESTING_CONCEPT_ID);
 		List<Obs> listOfObservations = utils.extractObservations(patient, pointOfHiv);
 		if (!listOfObservations.isEmpty()) {
-			String element = pointOfHiv.getDisplayString();
-			builder.append(utils.buildSectionContent("<b>" + element + "</b>"));
+			builder.append(utils.buildSectionHeader(pointOfHiv.getDisplayString()));
 			for (Obs obs : listOfObservations) {
 				builder.append(utils.buildRow(obs));
 			}
