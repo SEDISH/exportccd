@@ -83,7 +83,7 @@ public class VitalSignsSectionGenerator {
 	
 	private String buildOtherConclusionSection(Patient patient) {
 		StringBuilder builder = new StringBuilder();
-		SortedMap<String, List<String>> otherConclusions = new TreeMap<String, List<String>>(descendingDateComparator);
+		SortedMap<String, List<String>> otherConclusions = new TreeMap<String, List<String>>(utils.descendingDateComparator);
 		Concept concept = Context.getConceptService().getConcept(AUTRES_CONCLUSION_CONCEPT_ID);
 		List<Obs> listOfObservations = utils.extractObservations(patient, concept);
 		
@@ -133,7 +133,7 @@ public class VitalSignsSectionGenerator {
 	
 	private String buildConclusionSection(Patient patient) {
 		StringBuilder builder = new StringBuilder();
-		SortedMap<String, List<String>> conclusions = new TreeMap<String, List<String>>(descendingDateComparator);
+		SortedMap<String, List<String>> conclusions = new TreeMap<String, List<String>>(utils.descendingDateComparator);
 		for (int i = EXAM_CONCEPT_START_ID; i < EXAM_CONCEPT_END_ID; i++) {
 			extractConclusions(patient, conclusions, i);
 		}
@@ -188,19 +188,4 @@ public class VitalSignsSectionGenerator {
 		}
 	}
 	
-	private Comparator<String> descendingDateComparator = new Comparator<String>() {
-		
-		@Override
-		public int compare(String s1, String s2) {
-			Date d1, d2;
-			try {
-				d1 = utils.parse(s1);
-				d2 = utils.parse(s2);
-			}
-			catch (ParseException e) {
-				return 0;
-			}
-			return -1 * d1.compareTo(d2);
-		}
-	};
 }

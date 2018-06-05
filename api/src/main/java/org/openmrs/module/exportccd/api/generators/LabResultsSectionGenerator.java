@@ -42,7 +42,7 @@ public class LabResultsSectionGenerator {
 		Concept concept = Context.getConceptService().getConcept(LAB_RESULTS_CONCEPT_ID);
 		List<Obs> listOfObservations = utils.extractObservations(patient, concept);
 		if (!listOfObservations.isEmpty()) {
-			builder.append(utils.buildSectionHeader("", "Date", "Résultat"));
+			builder.append(utils.buildSectionHeader("Nom du test", "Date", "Résultat"));
 			for (Obs obs : listOfObservations) {
 				builder.append(utils.buildSectionContent(obs.getValueCoded().getDisplayString(),
 				    utils.format(obs.getDateCreated()), getValueOfObs(patient, obs)));

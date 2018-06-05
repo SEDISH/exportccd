@@ -49,7 +49,8 @@ public class FamilyHistorySectionGenerator {
 		nameRow.append(", ");
 		nameRow.append(person.getFamilyName());
 		builder.append(utils.buildSectionHeader());
-		builder.append(String.format("<tr><td>%s</td><td style=\"text-align: right\">Sommaire du patient pour:</br>%s</td></tr>",
+		builder.append(String.format(
+		    "<tr><td>%s</td><td style=\"text-align: right\">Sommaire du patient pour:</br>%s</td></tr>",
 		    utils.formatWithTime(new Date()), nameRow.toString()));
 		builder.append(utils.buildSectionFooter());
 		builder.append(utils.buildTitle("Resumé de dossier médical"));

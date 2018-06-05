@@ -52,8 +52,8 @@ public class MedicationSectionGenerator {
 	}
 	
 	private String generateDrugSectionContent(Patient patient) {
-		StringBuilder builder = utils.buildSecondHeaderRow("Medication/Posologie", "Début", "Fin",
-		    "Dernier dt. de dispens.", "Dur. (journées)", "Tox", "Int", "Ech", "Inc");
+		StringBuilder builder = utils.buildSectionHeader("Medication/Posologie", "Début", "Fin", "Dernier dt. de dispens.",
+		    "Dur. (journées)", "Tox", "Int", "Ech", "Inc");
 		
 		List<Obs> observations = Context.getObsService().getObservationsByPersonAndConcept(patient,
 		    Context.getConceptService().getConcept(DRUGS_CONCEPT_ID));

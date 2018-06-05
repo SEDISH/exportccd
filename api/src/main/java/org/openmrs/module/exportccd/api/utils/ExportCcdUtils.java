@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +31,22 @@ public class ExportCcdUtils {
 	SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
 	
 	SimpleDateFormat dateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss (zzz)");
+	
+	public Comparator<String> descendingDateComparator = new Comparator<String>() {
+		
+		@Override
+		public int compare(String s1, String s2) {
+			Date d1, d2;
+			try {
+				d1 = parse(s1);
+				d2 = parse(s2);
+			}
+			catch (ParseException e) {
+				return 0;
+			}
+			return -1 * d1.compareTo(d2);
+		}
+	};
 	
 	public List<Obs> extractObservations(Patient patient, Concept concept) {
 		List<Obs> listOfObservations = new ArrayList<Obs>();
@@ -211,39 +228,6 @@ public class ExportCcdUtils {
 		
 		builder.append(getBorderStart());
 		builder.append("<thead>");
-		builder.append("<tr>");
-		
-		for (String element : elements) {
-			builder.append("<th style=\"text-align: left;\">").append(element).append("</th>");
-		}
-		
-		builder.append("</tr>");
-		builder.append("</thead>");
-		builder.append("<tbody>");
-		
-		return builder;
-	}
-	
-	public StringBuilder buildFirstHeaderRow(String... elements) {
-		StringBuilder builder = new StringBuilder();
-		
-		builder.append(getBorderStart());
-		builder.append("<thead>");
-		builder.append("<tr>");
-		
-		for (String element : elements) {
-			builder.append("<th style=\"text-align: left;\">").append(element).append("</th>");
-		}
-		
-		builder.append("</tr>");
-		
-		return builder;
-	}
-	
-	public StringBuilder buildSecondHeaderRow(String... elements) {
-		StringBuilder builder = new StringBuilder();
-		
-		builder.append(getBorderStart());
 		builder.append("<tr>");
 		
 		for (String element : elements) {
