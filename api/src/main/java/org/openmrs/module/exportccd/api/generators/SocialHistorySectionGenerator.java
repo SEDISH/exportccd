@@ -14,7 +14,6 @@ import org.openmrs.module.exportccd.api.utils.ExportCcdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -28,7 +27,9 @@ public class SocialHistorySectionGenerator {
 	
 	private static final int TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID = 1659;
 	
-	private static final int DURATION_CONCEPT_ID = 163340;
+	private static final int OBSTETRIC_HISTORY_ID = 160076;
+	
+	private static final int ARV_ID = 5356;
 	
 	@Autowired
 	private ExportCcdUtils utils;
@@ -38,45 +39,34 @@ public class SocialHistorySectionGenerator {
 	
 	public ContinuityOfCareDocument buildSocialHistory(ContinuityOfCareDocument ccd, Patient patient) {
 		SocialHistorySection section = CCDFactory.eINSTANCE.createSocialHistorySection();
-		ccd.addSection(section);
 		section.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.15", "", "HITSP/C83"));
 		section.setCode(utils.buildCodeCE("29762-2", "2.16.840.1.113883.6.1", "Social History", "LOINC"));
 		section.setTitle(utils.buildST("Historique"));
 		StrucDocText details = CDAFactory.eINSTANCE.createStrucDocText();
 		
-		StringBuilder builder = utils.buildSectionHeader("Test Anticorps VIH", "Values", "Date");
+		StringBuilder builder = new StringBuilder();
 		
-		List<Concept> historyList = new ArrayList<Concept>();
-		historyList.add(Context.getConceptService().getConcept(POINT_OF_HIV_TESTING_CONCEPT_ID));
-		historyList.add(Context.getConceptService().getConcept(METHOD_OD_FAMILY_PLANNING_CONCEPT_ID));
-		historyList.add(Context.getConceptService().getConcept(METHOD_OD_HIV_EXPOSURE_CONCEPT_ID));
-
-		historyList.add(Context.getConceptService().getConcept(TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID));
-		historyList.add(Context.getConceptService().getConcept(DURATION_CONCEPT_ID));
-		
-		List<Obs> listOfObservations = new ArrayList();
-		for (Concept concept : historyList) {
-			if (concept.isSet()) {
-				for (Concept conceptSet : concept.getSetMembers()) {
-					listOfObservations
-					        .addAll(Context.getObsService().getObservationsByPersonAndConcept(patient, conceptSet));
-				}
-			} else {
-				listOfObservations.addAll(Context.getObsService().getObservationsByPersonAndConcept(patient, concept));
+		Concept pointOfHiv = Context.getConceptService().getConcept(POINT_OF_HIV_TESTING_CONCEPT_ID);
+		List<Obs> listOfObservations = utils.extractObservations(patient, pointOfHiv);
+		if (!listOfObservations.isEmpty()) {
+			builder.append(utils.buildSectionHeader(pointOfHiv.getDisplayString()));
+			for (Obs obs : listOfObservations) {
+				builder.append(utils.buildRow(obs));
 			}
 		}
-		
-		for (Obs obs : listOfObservations) {
-			String element = obs.getConcept().getDisplayString();
-			String value = obs.getValueCoded().getDisplayString();
-			
-			builder.append(utils.buildSectionContent(element, utils.format(obs.getObsDatetime()), value));
-		}
-		
 		builder.append(utils.buildSectionFooter());
+		
+		builder.append(utils.buildSubsection(patient, METHOD_OD_HIV_EXPOSURE_CONCEPT_ID, "Mode probable de "
+		        + "transmission"));
+		builder.append(utils.buildSubsection(patient, OBSTETRIC_HISTORY_ID, "Antécédents Obstétriques et Grossesse"));
+		builder.append(utils.buildSubsection(patient, METHOD_OD_FAMILY_PLANNING_CONCEPT_ID, "Planning familial"));
+		builder.append(utils.buildSubsection(patient, TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID, "Statut de TB"));
+		builder.append(utils.buildSubsection(patient, ARV_ID, "Eligibilité Médical aux ARV"));
 		
 		details.addText(builder.toString());
 		section.setText(details);
+		ccd.addSection(section);
 		return ccd;
 	}
+	
 }

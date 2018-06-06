@@ -1,25 +1,10 @@
 package org.openmrs.module.exportccd.api.generators;
 
 import org.openhealthtools.mdht.uml.cda.CDAFactory;
-import org.openhealthtools.mdht.uml.cda.Component4;
-import org.openhealthtools.mdht.uml.cda.Entry;
-import org.openhealthtools.mdht.uml.cda.Observation;
-import org.openhealthtools.mdht.uml.cda.ObservationRange;
-import org.openhealthtools.mdht.uml.cda.Organizer;
-import org.openhealthtools.mdht.uml.cda.ReferenceRange;
 import org.openhealthtools.mdht.uml.cda.StrucDocText;
 import org.openhealthtools.mdht.uml.cda.ccd.CCDFactory;
 import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
 import org.openhealthtools.mdht.uml.cda.ccd.VitalSignsSection;
-import org.openhealthtools.mdht.uml.hl7.datatypes.CS;
-import org.openhealthtools.mdht.uml.hl7.datatypes.DatatypesFactory;
-import org.openhealthtools.mdht.uml.hl7.datatypes.PQ;
-import org.openhealthtools.mdht.uml.hl7.vocab.ActClassObservation;
-import org.openhealthtools.mdht.uml.hl7.vocab.ActMood;
-import org.openhealthtools.mdht.uml.hl7.vocab.NullFlavor;
-import org.openhealthtools.mdht.uml.hl7.vocab.x_ActClassDocumentEntryOrganizer;
-import org.openhealthtools.mdht.uml.hl7.vocab.x_ActMoodDocumentObservation;
-import org.openhealthtools.mdht.uml.hl7.vocab.x_ActRelationshipEntry;
 import org.openmrs.Concept;
 import org.openmrs.ConceptNumeric;
 import org.openmrs.Obs;
@@ -30,22 +15,39 @@ import org.openmrs.module.exportccd.api.utils.ExportCcdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 @Component
 public class VitalSignsSectionGenerator {
 	
-	private static final int VITAL_SIGNS_CONCEPT_ID = 1114;
+	private static final int WEIGHT_CONCEPT_ID = 5089;
+	
+	private static final int CD4_VALUE_CONCEPT_ID = 159375;
+	
+	private static final int EXAM_CONCEPT_START_ID = 1120;
+	
+	private static final int EXAM_CONCEPT_END_ID = 1129;
+	
+	private static final int MOUTH_EXAM_CONCEPT_ID = 163308;
+	
+	private static final int EYE_EXAM_CONCEPT_ID = 163309;
+	
+	private static final int NOSE_EXAM_CONCEPT_ID = 163336;
+	
+	private static final int EAR_EXAM_CONCEPT_ID = 163337;
+	
+	public static final int ABNORMAL_CONCEPT_ID = 1116;
+	
+	public static final int AUTRES_CONCLUSION_CONCEPT_ID = 1284;
 	
 	@Autowired
 	private ExportCcdUtils utils;
@@ -61,139 +63,129 @@ public class VitalSignsSectionGenerator {
 		section.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.3.25", "", "IHE PCC"));
 		section.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.16", "", "HL7 CCD"));
 		section.setCode(utils.buildCodeCE("8716-3", "2.16.840.1.113883.6.1", "Vital signs", "LOINC"));
-		section.setTitle(utils.buildST("Vital Signs"));
-		StringBuffer buffer = new StringBuffer();
-		buffer.append(utils.getBorderStart());
-		buffer.append("<thead>");
-		buffer.append("<tr>");
-		buffer.append("<th style=\"text-align: left;\">Date</th>");
-		List<Concept> vitalSignsList = new ArrayList();
-		vitalSignsList.add(Context.getConceptService().getConcept(VITAL_SIGNS_CONCEPT_ID));
-		List<Obs> listOfObservations = new ArrayList();
-		Map<String, String> vitalSignData = new HashMap();
-		Set<Concept> observedConceptList = new HashSet();
-		Set<Date> dateSet = new HashSet();
+		section.setTitle(utils.buildST("Examen Clinique"));
 		
-		Iterator i$ = vitalSignsList.iterator();
-		while (i$.hasNext()) {
-			Concept concept = (Concept) i$.next();
-			if (concept.isSet()) {
-				List<Concept> conceptSet = concept.getSetMembers();
-				System.out.println(conceptSet);
-				i$ = conceptSet.iterator();
-				
-				while (i$.hasNext()) {
-					Concept conceptSet2 = (Concept) i$.next();
-					listOfObservations.addAll(Context.getObsService()
-					        .getObservationsByPersonAndConcept(patient, conceptSet2));
-					observedConceptList.add(conceptSet2);
-				}
-			} else {
-				listOfObservations.addAll(Context.getObsService().getObservationsByPersonAndConcept(patient, concept));
-				observedConceptList.add(concept);
-			}
-		}
+		StringBuilder builder = new StringBuilder();
 		
-		i$ = listOfObservations.iterator();
+		builder.append(buildWeightSection(patient));
 		
-		Date date;
-		while (i$.hasNext()) {
-			Obs obs = (Obs) i$.next();
-			date = obs.getObsDatetime();
-			dateSet.add(date);
-			if (vitalSignData.containsKey(date)) {
-				String data = vitalSignData.get(date);
-				data = data + "," + obs.getId();
-				vitalSignData.put(date + obs.getConcept().getId().toString(), data);
-			} else {
-				vitalSignData.put(date + obs.getConcept().getId().toString(), obs.getId().toString());
-			}
-		}
+		builder.append(buildCd4Section(patient));
 		
-		System.out.println(vitalSignData);
-		SortedSet<Date> sortedSet = new TreeSet(Collections.reverseOrder());
-		sortedSet.addAll(dateSet);
-		i$ = sortedSet.iterator();
+		builder.append(buildConclusionSection(patient));
 		
-		while (i$.hasNext()) {
-			date = (Date) i$.next();
-			buffer.append("<th style=\"text-align: left;\">" + utils.format(date) + "</th>");
-		}
+		builder.append(buildOtherConclusionSection(patient));
 		
-		buffer.append("</tr>");
-		buffer.append("</thead>");
-		buffer.append("<tbody>");
-		i$ = observedConceptList.iterator();
-		
-		while (i$.hasNext()) {
-			Concept concept = (Concept) i$.next();
-			buffer.append("<tr>");
-			buffer.append("<td><content Id= \"" + concept.getDisplayString() + "\">" + concept.getDisplayString()
-			        + "</content></td>");
-			i$ = sortedSet.iterator();
-			
-			while (i$.hasNext()) {
-				date = (Date) i$.next();
-				if (vitalSignData.containsKey(date + "" + concept)) {
-					ConceptNumeric c = Context.getConceptService().getConceptNumeric(concept.getId());
-					String obsId = vitalSignData.get(date + "" + concept);
-					Obs obs = Context.getObsService().getObs(Integer.parseInt(obsId));
-					buffer.append("<td>" + obs.getValueNumeric() + c.getUnits() + "</td>");
-					Entry vitalSignEntry = CDAFactory.eINSTANCE.createEntry();
-					vitalSignEntry.setTypeCode(x_ActRelationshipEntry.DRIV);
-					Organizer organizer = CDAFactory.eINSTANCE.createOrganizer();
-					organizer.setClassCode(x_ActClassDocumentEntryOrganizer.CLUSTER);
-					organizer.setMoodCode(ActMood.EVN);
-					organizer.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.13.1", "", "IHE PCC"));
-					organizer.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.32", "", "CCD"));
-					organizer.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.35", "", "CCD"));
-					organizer.getIds().add(utils.buildID(obs.getUuid(), ""));
-					organizer.setCode(utils.buildCode("46680005", "2.16.840.1.113883.6.96", "Vital signs", "SNOMED-CT"));
-					CS statusCode = DatatypesFactory.eINSTANCE.createCS();
-					statusCode.setCode("completed");
-					organizer.setStatusCode(statusCode);
-					organizer.setEffectiveTime(utils.buildEffectiveTimeinIVL(date, null));
-					Component4 component = CDAFactory.eINSTANCE.createComponent4();
-					Observation observation = CDAFactory.eINSTANCE.createObservation();
-					observation.setClassCode(ActClassObservation.OBS);
-					observation.setMoodCode(x_ActMoodDocumentObservation.EVN);
-					observation.getTemplateIds().add(
-					    utils.buildTemplateID("2.16.840.1.113883.3.88.11.83.14", "", "HITSP C83"));
-					observation.getTemplateIds().add(utils.buildTemplateID("2.16.840.1.113883.10.20.1.31", "", "CCD"));
-					observation.getTemplateIds().add(utils.buildTemplateID("1.3.6.1.4.1.19376.1.5.3.1.4.13", "", "IHE PCC"));
-					observation.getIds().add(utils.buildID(obs.getUuid(), ""));
-					observation.setCode(utils.buildConceptCode(concept, "SNOMED", "LOINC"));
-					observation.setText(utils.buildEDText("#" + concept.getDisplayString()));
-					CS statusCode1 = DatatypesFactory.eINSTANCE.createCS();
-					statusCode1.setCode("completed");
-					observation.setStatusCode(statusCode1);
-					observation.setEffectiveTime(utils.buildEffectiveTimeinIVL(obs.getObsDatetime(), null));
-					PQ unit = DatatypesFactory.eINSTANCE.createPQ();
-					unit.setUnit(c.getUnits());
-					unit.setValue(obs.getValueNumeric());
-					observation.getValues().add(unit);
-					ReferenceRange conceptRange = CDAFactory.eINSTANCE.createReferenceRange();
-					ObservationRange observationRange = CDAFactory.eINSTANCE.createObservationRange();
-					observationRange.setNullFlavor(NullFlavor.UNK);
-					conceptRange.setObservationRange(observationRange);
-					observation.getReferenceRanges().add(conceptRange);
-					component.setObservation(observation);
-					organizer.getComponents().add(component);
-					vitalSignEntry.setOrganizer(organizer);
-					section.getEntries().add(vitalSignEntry);
-				} else {
-					buffer.append("<td></td>");
-				}
-			}
-			
-			buffer.append("</tr>");
-		}
-		
-		buffer.append("</tbody>");
-		buffer.append("</table>");
 		StrucDocText details = CDAFactory.eINSTANCE.createStrucDocText();
-		details.addText(buffer.toString());
+		details.addText(builder.toString());
 		section.setText(details);
 		return ccd;
 	}
+	
+	private String buildOtherConclusionSection(Patient patient) {
+		StringBuilder builder = new StringBuilder();
+		SortedMap<String, List<String>> otherConclusions = new TreeMap<String, List<String>>(utils.descendingDateComparator);
+		Concept concept = Context.getConceptService().getConcept(AUTRES_CONCLUSION_CONCEPT_ID);
+		List<Obs> listOfObservations = utils.extractObservations(patient, concept);
+		
+		for (Obs obs : listOfObservations) {
+			String conclusionValue = obs.getValueCoded().getDisplayString();
+			if (obs.getComment() != null) {
+				conclusionValue += String.format(" (%s)", obs.getComment());
+			}
+			
+			if (otherConclusions.get(utils.format(obs.getDateCreated())) == null) {
+				List<String> concepts = new ArrayList<String>();
+				
+				concepts.add(conclusionValue);
+				otherConclusions.put(utils.format(obs.getDateCreated()), concepts);
+			} else {
+				otherConclusions.get(utils.format(obs.getDateCreated())).add(conclusionValue);
+			}
+		}
+		
+		if (!otherConclusions.isEmpty()) {
+			builder.append(utils.buildSubTitle("Autres conlusions:"));
+			builder.append(utils.buildSectionHeader());
+			for (Map.Entry<String, List<String>> conclusion : otherConclusions.entrySet()) {
+				builder.append(utils.buildSectionContent(conclusion.getKey(),
+				    Arrays.toString(new HashSet(conclusion.getValue()).toArray()).replace("[", "").replace("]", "")));
+			}
+			builder.append(utils.buildSectionFooter());
+		}
+		return builder.toString();
+	}
+	
+	private String buildCd4Section(Patient patient) {
+		StringBuilder builder = new StringBuilder();
+		ConceptNumeric cd4 = Context.getConceptService().getConceptNumeric(CD4_VALUE_CONCEPT_ID);
+		List<Obs> listOfObservations = utils.extractObservations(patient, cd4);
+		if (!listOfObservations.isEmpty()) {
+			builder.append(utils.buildSubTitle("Historique de poids"));
+			builder.append(utils.buildSectionHeader("Résultat", "Unité", "Date"));
+			for (Obs obs : listOfObservations) {
+				String value = obs.getValueNumeric().toString();
+				builder.append(utils.buildSectionContent(value, "/mm3", utils.format(obs.getDateCreated())));
+			}
+		}
+		builder.append(utils.buildSectionFooter());
+		return builder.toString();
+	}
+	
+	private String buildConclusionSection(Patient patient) {
+		StringBuilder builder = new StringBuilder();
+		SortedMap<String, List<String>> conclusions = new TreeMap<String, List<String>>(utils.descendingDateComparator);
+		for (int i = EXAM_CONCEPT_START_ID; i < EXAM_CONCEPT_END_ID; i++) {
+			extractConclusions(patient, conclusions, i);
+		}
+		
+		extractConclusions(patient, conclusions, MOUTH_EXAM_CONCEPT_ID);
+		extractConclusions(patient, conclusions, EYE_EXAM_CONCEPT_ID);
+		extractConclusions(patient, conclusions, NOSE_EXAM_CONCEPT_ID);
+		extractConclusions(patient, conclusions, EAR_EXAM_CONCEPT_ID);
+		
+		if (!conclusions.isEmpty()) {
+			builder.append(utils.buildSubTitle("Conclusions d'examen clinique"));
+			builder.append(utils.buildSectionHeader("Date de visite", "Résultats anormals"));
+			for (Map.Entry<String, List<String>> conclusion : conclusions.entrySet()) {
+				builder.append(utils.buildSectionContent(conclusion.getKey(),
+				    Arrays.toString(conclusion.getValue().toArray()).replace("[", "").replace("]", "")));
+			}
+			builder.append(utils.buildSectionFooter());
+		}
+		return builder.toString();
+	}
+	
+	private String buildWeightSection(Patient patient) {
+		StringBuilder builder = new StringBuilder();
+		ConceptNumeric weight = Context.getConceptService().getConceptNumeric(WEIGHT_CONCEPT_ID);
+		List<Obs> listOfObservations = utils.extractObservations(patient, weight);
+		if (!listOfObservations.isEmpty()) {
+			builder.append(utils.buildSubTitle("Historique de CD4"));
+			builder.append(utils.buildSectionHeader("Résultat", "Unité", "Date"));
+			for (Obs obs : listOfObservations) {
+				String value = obs.getValueNumeric().toString();
+				builder.append(utils.buildSectionContent(value, weight.getUnits(), utils.format(obs.getDateCreated())));
+			}
+		}
+		builder.append(utils.buildSectionFooter());
+		return builder.toString();
+	}
+	
+	private void extractConclusions(Patient patient, SortedMap<String, List<String>> conclusions, int i) {
+		List<Obs> listOfObservations;
+		Concept examConcept = Context.getConceptService().getConcept(i);
+		listOfObservations = utils.extractObservations(patient, examConcept);
+		for (Obs obs : listOfObservations) {
+			if (obs.getValueCoded().getConceptId() == ABNORMAL_CONCEPT_ID) {
+				if (conclusions.get(utils.format(obs.getDateCreated())) == null) {
+					List<String> concepts = new ArrayList<String>();
+					concepts.add(examConcept.getDisplayString());
+					conclusions.put(utils.format(obs.getDateCreated()), concepts);
+				} else {
+					conclusions.get(utils.format(obs.getDateCreated())).add(examConcept.getDisplayString());
+				}
+			}
+		}
+	}
+	
 }

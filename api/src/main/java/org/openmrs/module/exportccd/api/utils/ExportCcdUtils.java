@@ -11,20 +11,99 @@ import org.openhealthtools.mdht.uml.hl7.datatypes.ST;
 import org.openhealthtools.mdht.uml.hl7.datatypes.TS;
 import org.openmrs.Concept;
 import org.openmrs.ConceptMap;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 @Component
 public class ExportCcdUtils {
 	
-	SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy");
+	SimpleDateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+	
+	SimpleDateFormat dateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss (zzz)");
+	
+	public Comparator<String> descendingDateComparator = new Comparator<String>() {
+		
+		@Override
+		public int compare(String s1, String s2) {
+			Date d1, d2;
+			try {
+				d1 = parse(s1);
+				d2 = parse(s2);
+			}
+			catch (ParseException e) {
+				return 0;
+			}
+			return -1 * d1.compareTo(d2);
+		}
+	};
+	
+	public List<Obs> extractObservations(Patient patient, Concept concept) {
+		List<Obs> listOfObservations = new ArrayList<Obs>();
+		if (concept.isSet()) {
+			for (Concept conceptSet : concept.getSetMembers()) {
+				listOfObservations.addAll(Context.getObsService().getObservationsByPersonAndConcept(patient, conceptSet));
+			}
+		} else {
+			listOfObservations.addAll(Context.getObsService().getObservationsByPersonAndConcept(patient, concept));
+		}
+		return listOfObservations;
+	}
+	
+	public String buildSubsection(Patient patient, int conceptId, String sectionHeader) {
+		StringBuilder builder = new StringBuilder();
+		Concept concept = Context.getConceptService().getConcept(conceptId);
+		List<Obs> listOfObservations = extractObservations(patient, concept);
+		if (!listOfObservations.isEmpty()) {
+			builder.append(buildSectionHeader(sectionHeader));
+			for (Obs obs : listOfObservations) {
+				builder.append(buildRow(obs));
+			}
+			builder.append(buildSectionFooter());
+		}
+		return builder.toString();
+	}
+	
+	public String buildRow(Obs obs) {
+		StringBuilder builder = new StringBuilder();
+		if (obs.getValueNumeric() != null) {
+			String conceptName = obs.getConcept().getDisplayString();
+			String value = obs.getValueNumeric().toString();
+			builder.append(buildSectionContent(conceptName, value));
+			builder.append(buildEmptyLine());
+			
+		} else if (obs.getValueDatetime() != null) {
+			String conceptName = obs.getConcept().getDisplayString();
+			String value = obs.getValueDatetime().toString();
+			builder.append(buildSectionContent(conceptName, value));
+			builder.append(buildEmptyLine());
+		} else if (obs.getValueCoded() != null) {
+			builder.append(buildSectionContent(obs.getValueCoded().getDisplayString()));
+			builder.append(buildEmptyLine());
+		}
+		return builder.toString();
+	}
 	
 	public String format(Date date) {
-		return s.format(date);
+		return this.date.format(date);
+	}
+	
+	public String formatWithTime(Date date) {
+		return this.dateTime.format(date);
+	}
+	
+	public Date parse(String dateText) throws ParseException {
+		return date.parse(dateText);
 	}
 	
 	public ST buildST(String title) {
@@ -131,13 +210,13 @@ public class ExportCcdUtils {
 	
 	public IVL_TS buildEffectiveTimeinIVL(Date d, Date d1) {
 		IVL_TS effectiveTime = DatatypesFactory.eINSTANCE.createIVL_TS();
-		String creationDate = this.s.format(d);
+		String creationDate = this.date.format(d);
 		IVXB_TS low = DatatypesFactory.eINSTANCE.createIVXB_TS();
 		low.setValue(creationDate);
 		effectiveTime.setLow(low);
 		IVXB_TS high = DatatypesFactory.eINSTANCE.createIVXB_TS();
 		if (d1 != null) {
-			high.setValue(this.s.format(d1));
+			high.setValue(this.date.format(d1));
 		}
 		
 		effectiveTime.setHigh(high);
@@ -186,6 +265,24 @@ public class ExportCcdUtils {
 	}
 	
 	public String getBorderStart() {
-		return "<table style=\"margin-left: auto; margin-right: auto;\" border=\"0\" width=\"80%\">";
+		return "<table style=\"margin-left: auto; margin-right: auto;\" cellpadding=\"6\" border=\"0\" width=\"60%\">";
+	}
+	
+	public String buildEmptyLine() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("</br>");
+		return builder.toString();
+	}
+	
+	public String buildTitle(String title) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("<h1 style=\"text-align: center;\">" + title + "</h3>");
+		return builder.toString();
+	}
+	
+	public String buildSubTitle(String subTitle) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("<h3 style=\"text-align: center;\">" + subTitle + "</h3>");
+		return builder.toString();
 	}
 }
