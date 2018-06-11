@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class ExportCcdUtils {
@@ -66,8 +68,12 @@ public class ExportCcdUtils {
 		List<Obs> listOfObservations = extractObservations(patient, concept);
 		if (!listOfObservations.isEmpty()) {
 			builder.append(buildSectionHeader(sectionHeader));
+			Set<String> rows = new HashSet<String>();
 			for (Obs obs : listOfObservations) {
-				builder.append(buildRow(obs));
+				rows.add(buildRow(obs));
+			}
+			for (String row : rows) {
+				builder.append(row);
 			}
 			builder.append(buildSectionFooter());
 		}

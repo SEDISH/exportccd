@@ -14,7 +14,9 @@ import org.openmrs.module.exportccd.api.utils.ExportCcdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class SocialHistorySectionGenerator {
@@ -50,11 +52,14 @@ public class SocialHistorySectionGenerator {
 		List<Obs> listOfObservations = utils.extractObservations(patient, pointOfHiv);
 		if (!listOfObservations.isEmpty()) {
 			builder.append(utils.buildSectionHeader(pointOfHiv.getDisplayString()));
+			Set<String> rows = new HashSet<String>();
 			for (Obs obs : listOfObservations) {
-				builder.append(utils.buildRow(obs));
+				rows.add(utils.buildRow(obs));
+			}
+			for (String row : rows) {
+				builder.append(row);
 			}
 		}
-		builder.append(utils.buildSectionFooter());
 		
 		builder.append(utils.buildSubsection(patient, METHOD_OD_HIV_EXPOSURE_CONCEPT_ID, "Mode probable de "
 		        + "transmission"));
@@ -63,6 +68,7 @@ public class SocialHistorySectionGenerator {
 		builder.append(utils.buildSubsection(patient, TUBERCULOSIS_DISEASE_STATUS_CONCEPT_ID, "Statut de TB"));
 		builder.append(utils.buildSubsection(patient, ARV_ID, "Eligibilité Médical aux ARV"));
 		
+		builder.append(utils.buildSectionFooter());
 		details.addText(builder.toString());
 		section.setText(details);
 		ccd.addSection(section);

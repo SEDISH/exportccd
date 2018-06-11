@@ -12,15 +12,12 @@ import org.openmrs.module.exportccd.api.utils.ExportCcdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class MedicationSectionGenerator {
 	
-	private static final int DRUGS_CONCEPT_ID = 1442;
-	
-	private static final int DRUGS_CONSTRUCT_CONCEPT_ID = 163711;
+	private static final int DRUGS_CONCEPT_ID = 163711;
 	
 	private static final int DOSE_CONCEPT_ID = 1444;
 	
@@ -57,11 +54,8 @@ public class MedicationSectionGenerator {
 		
 		List<Obs> observations = Context.getObsService().getObservationsByPersonAndConcept(patient,
 		    Context.getConceptService().getConcept(DRUGS_CONCEPT_ID));
-		List<Obs> constructObservations = Context.getObsService().getObservationsByPersonAndConcept(patient,
-		    Context.getConceptService().getConcept(DRUGS_CONSTRUCT_CONCEPT_ID));
 		for (Obs obs : observations) {
 			List<Obs> group = Context.getObsService().findObsByGroupId(obs.getId());
-			List<Obs> constructGroup = new ArrayList<Obs>();
 			String dose = "";
 			String name = "";
 			String days = "-";
@@ -73,24 +67,13 @@ public class MedicationSectionGenerator {
 						break;
 					case DRUG_NAME_CONCEPT_ID:
 						name = obs2.getValueCoded().getDisplayString();
-						
-						for (Obs consObs : constructObservations) {
-							List<Obs> consGroup = Context.getObsService().findObsByGroupId(consObs.getId());
-							for (Obs consObs2 : consGroup) {
-								if (consObs2.getConcept().getId().equals(DRUG_NAME_CONCEPT_ID)
-								        && consObs2.getValueCoded().getDisplayString().equals(name)) {
-									constructGroup = consGroup;
-								}
-							}
-						}
-						
 						break;
 					case DURATION_CONCEPT_ID:
 						days = String.valueOf(obs2.getValueNumeric());
 				}
 			}
 			
-			for (Obs obs2 : constructGroup) {
+			for (Obs obs2 : group) {
 				switch (obs2.getConcept().getId()) {
 					case DISPENSE_DATE_CONCEPT_ID:
 						dispenseDate = utils.format(obs2.getObsDatetime());
