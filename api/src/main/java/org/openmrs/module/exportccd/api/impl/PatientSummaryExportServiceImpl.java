@@ -72,7 +72,6 @@ public class PatientSummaryExportServiceImpl extends BaseOpenmrsService implemen
 		List<PatientIdentifierType> identifierTypes = new ArrayList<PatientIdentifierType>();
 		identifierTypes.add(patientService.getPatientIdentifierTypeByName(ECID_NAME));
 		Patient patient = patientService.getPatients(null, patientECID, identifierTypes, false).get(0);
-		System.out.println(patient);
 		ccd = headerGenerator.buildHeader(ccd, patient);
 		ccd = allergySectionGenerator.buildAllergies(ccd, patient);
 		ccd = problemsSectionGenerator.buildProblems(ccd, patient);

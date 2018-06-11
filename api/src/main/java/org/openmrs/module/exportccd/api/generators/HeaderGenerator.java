@@ -111,9 +111,15 @@ public class HeaderGenerator {
 		for (PersonAddress address : addresses) {
 			if (address.isPreferred()) {
 				AD patientAddress = DatatypesFactory.eINSTANCE.createAD();
-				patientAddress.addStreetAddressLine(address.getAddress1() + address.getAddress2());
-				patientAddress.addCity(address.getCityVillage());
-				patientAddress.addState(address.getStateProvince());
+				if (address.getAddress1() != null || address.getAddress2() != null) {
+					patientAddress.addStreetAddressLine(address.getAddress1() + address.getAddress2());
+				}
+				if (address.getCityVillage() != null) {
+					patientAddress.addCity(address.getCityVillage());
+				}
+				if (address.getStateProvince() != null) {
+					patientAddress.addState(address.getStateProvince());
+				}
 				patientRole.getAddrs().add(patientAddress);
 			}
 		}
@@ -131,7 +137,6 @@ public class HeaderGenerator {
 		gender.setCode(patient.getGender());
 		gender.setCodeSystem("2.16.840.1.113883.5.1");
 		cdapatient.setAdministrativeGenderCode(gender);
-		System.out.print(patient.getAttribute("Civil Status"));
 		PersonAttribute civilStatus = patient.getAttribute("Civil Status");
 		if (civilStatus != null) {
 			Concept c = Context.getConceptService().getConceptByName(civilStatus.toString());
